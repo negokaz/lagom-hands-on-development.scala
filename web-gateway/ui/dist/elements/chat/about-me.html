@@ -1,0 +1,28 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+</head><body><dom-module id="about-me">
+
+    <style>
+        :host {
+            background-color: #421540;
+            color: #fff;
+        }
+        .my-name {
+            padding: 1.5rem 0;
+            font-weight: bold;
+            size: 1.5rem;
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
+
+    <template>
+        <div class="my-name">[[my.name]]</div>
+        <iron-ajax auto="" url="[[url]]" handle-as="json" last-response="{{my}}" debounce-duration="300"></iron-ajax>
+    </template>
+
+    <script src="/playRoutes.js"></script>
+    </dom-module>
+<script src="about-me.js"></script></body></html>

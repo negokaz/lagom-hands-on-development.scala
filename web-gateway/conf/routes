@@ -1,0 +1,25 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+# An example controller showing a sample home page
+# GET     /                           com.github.mmizutani.playgulp.GulpAssets.redirectRoot("/ui/")
+GET     /                           controllers.ChatController.index
+GET     /playRoutes.js              controllers.ChatController.playRoutes
+POST    /login                      controllers.ChatController.login
+GET     /chat                       controllers.ChatController.chat
+POST    /chat                       controllers.ChatController.receiveMessage
+GET     /chat/messageStream         controllers.ChatController.messageStream
+GET     /chat/messages              controllers.ChatController.chatMessages
+GET     /users                      controllers.ChatController.users
+GET     /users/others               controllers.ChatController.otherUsers
+GET     /users/self                 controllers.ChatController.aboutMe
+GET     /users/events               controllers.ChatController.userEvents
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /ui/assets/*file            com.github.mmizutani.playgulp.GulpAssets.at(file)
+
+GET     /ui                         com.github.mmizutani.playgulp.GulpAssets.index
+->      /ui/                        gulp.Routes

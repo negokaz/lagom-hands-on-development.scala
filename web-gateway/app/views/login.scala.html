@@ -1,0 +1,23 @@
+@import controllers.ChatController.User
+@(loginForm: Form[User])(implicit req: play.api.mvc.RequestHeader, message: play.api.i18n.Messages)
+
+@import views.html.helper
+
+<html>
+    <head>
+        <title>Chat</title>
+        <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="@routes.Assets.versioned("lib/normalize.css/normalize.css")"/>
+        <link rel="stylesheet" href="@routes.Assets.versioned("main.css")"/>
+        <script type="text/javascript" src="@routes.Assets.versioned("lib/jquery/jquery.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("main.js")"></script>
+    </head>
+    <body>
+        <h1>Lagom Chat</h1>
+
+        @helper.form(action = routes.ChatController.login()) {
+            @helper.inputText(field = loginForm("name"), 'placeholder -> "Who are you?")
+            <input type="submit" value="login" />
+        }
+    </body>
+</html>

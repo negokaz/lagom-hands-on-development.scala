@@ -1,0 +1,33 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<script src="../../bower_components/time-elements/time-elements.js"></script>
+
+</head><body><dom-module id="chat-message">
+
+    <style include="iron-flex iron-flex-alignment">
+        :host {
+            display: block;
+            padding: 0.75rem;
+        }
+        .username {
+            font-weight: bold;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #919191;
+        }
+    </style>
+
+    <template>
+        <div class="horizontal layout">
+            <div class="flex">
+                <div class="username">[[username]]</div>
+                <div class="message">[[message]]</div>
+            </div>
+            <relative-time class="timestamp" datetime$="[[timestamp]]"></relative-time>
+        </div>
+    </template>
+
+    </dom-module>
+<script src="chat-message.js"></script></body></html>
