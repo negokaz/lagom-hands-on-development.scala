@@ -48,8 +48,9 @@ lazy val `lagom-chat-stream-impl` = (project in file("lagom-chat-stream-impl"))
   )
   .dependsOn(`lagom-chat-stream-api`, `lagom-chat-api`)
 
+import PlayGulpKeys._
 lazy val `web-gateway` = (project in file("web-gateway"))
-  .enablePlugins(PlayScala, LagomPlayScala)
+  .enablePlugins(PlayScala, LagomPlayScala, PlayGulpPlugin)
   .settings(
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
@@ -59,6 +60,8 @@ lazy val `web-gateway` = (project in file("web-gateway"))
       "org.webjars" % "react-router" % "1.0.3",
       "org.webjars" % "jquery" % "3.1.1-1",
       "org.webjars" % "foundation" % "6.2.3"
-    )
+    ),
+    ReactJsKeys.harmony := true,
+    ReactJsKeys.es6module := true
   )
   .dependsOn(`lagom-chat-api`)
