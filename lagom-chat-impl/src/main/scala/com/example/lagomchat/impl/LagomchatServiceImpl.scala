@@ -22,6 +22,6 @@ class LagomchatServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) e
     val ref = persistentEntityRegistry.refFor[LagomchatEntity](id)
 
     // Tell the entity to use the greeting message specified.
-    ref.ask(UseGreetingMessage(request.message))
+    ref.ask(UseGreetingMessage(request.body))
   }
 }

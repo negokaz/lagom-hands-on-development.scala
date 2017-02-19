@@ -55,11 +55,7 @@ lazy val `web-gateway` = (project in file("web-gateway"))
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
       filters,
-      macwire,
-      "org.webjars" % "react" % "15.3.2",
-      "org.webjars" % "react-router" % "1.0.3",
-      "org.webjars" % "jquery" % "3.1.1-1",
-      "org.webjars" % "foundation" % "6.2.3"
+      macwire
     ),
     ReactJsKeys.harmony := true,
     ReactJsKeys.es6module := true

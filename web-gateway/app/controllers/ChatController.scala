@@ -14,16 +14,12 @@ import play.api.routing.{JavaScriptReverseRoute, JavaScriptReverseRouter}
 import scala.concurrent.Future
 
 
-object HomeController {
+object ChatController {
   case class User(name: String)
 }
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
-class HomeController @Inject()(gulpAssets: GulpAssets, messages: MessagesApi, chatService: LagomchatService) extends Controller {
-  import HomeController._
+class ChatController @Inject()(gulpAssets: GulpAssets, messages: MessagesApi, chatService: LagomchatService) extends Controller {
+  import ChatController._
 
   val loginForm = Form(
     mapping(

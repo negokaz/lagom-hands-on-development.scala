@@ -1,5 +1,7 @@
 package com.example.lagomchat.api
 
+import java.sql.Timestamp
+
 import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 import play.api.libs.json.{Format, Json}
@@ -21,29 +23,26 @@ trait LagomchatService extends Service {
     * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
     * "Hi"}' http://localhost:9000/api/hello/Alice
     */
-  def useGreeting(id: String): ServiceCall[GreetingMessage, Done]
+  def useGreeting(id: String): ServiceCall[Message, Done]
 
   override final def descriptor = {
     import Service._
-    // @formatter:off
     named("lagom-chat").withCalls(
       pathCall("/api/hello/:id", hello _),
       pathCall("/api/hello/:id", useGreeting _)
     ).withAutoAcl(true)
-    // @formatter:on
   }
 }
 
 /**
   * The greeting message class.
   */
-case class GreetingMessage(message: String)
-
-object GreetingMessage {
+case class Message(body: String, user: String)
+object Message {
   /**
     * Format for converting greeting messages to and from JSON.
     *
     * This will be picked up by a Lagom implicit conversion from Play's JSON format to Lagom's message serializer.
     */
-  implicit val format: Format[GreetingMessage] = Json.format[GreetingMessage]
+  implicit val format: Format[Message] = Json.format[Message]
 }
