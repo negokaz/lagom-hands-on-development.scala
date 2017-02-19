@@ -1,0 +1,47 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="./chat-message-list.html">
+<link rel="import" href="./chat-message-form.html">
+
+<dom-module id="chat-app">
+
+    <style include="iron-flex iron-flex-alignment">
+        #chat {
+            height: 100%;
+        }
+        .element {
+            padding: 1rem;
+        }
+    </style>
+
+    <template>
+        <section id="chat" class="vertical fit layout">
+            <chat-message-list class="flex element"></chat-message-list>
+            <chat-message-form class="element" on-submit="_handleSubmit"></chat-message-form>
+        </section>
+    </template>
+
+    <script>
+        Polymer(class Element {
+
+            beforeRegister() {
+                this.is = 'chat-app';
+
+                this.properties = {
+                };
+            }
+            created() {}
+            ready() {}
+            attached() {}
+            detached() {}
+            attributeChanged() {}
+
+            _handleSubmit(e) {
+                this.querySelector("chat-message-list")
+                    .addMessage({username: "Me", message: e.detail.message, timestamp: new Date().toISOString()})
+            }
+        });
+    </script>
+</dom-module>

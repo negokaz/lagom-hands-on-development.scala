@@ -1,5 +1,13 @@
-@()
+@(name: String)(implicit req: play.api.mvc.RequestHeader)
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
-}
+<html>
+  <head>
+    <title>Chat</title>
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="@routes.Assets.versioned("lib/normalize.css/normalize.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")"/>
+  </head>
+  <body>
+    <span>@name</span>
+  </body>
+</html>

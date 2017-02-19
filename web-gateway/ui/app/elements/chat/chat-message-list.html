@@ -1,0 +1,68 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+
+<link rel="import" href="./chat-message.html">
+
+<dom-module id="chat-message-list">
+
+    <style>
+        :host {
+            display: block;
+            overflow: scroll;
+            @apply(--layout-vertical);
+        }
+        iron-list {
+            @apply(--layout-flex);
+        }
+        chat-message {
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+
+    <template>
+        <iron-list id="list" items="{{messages}}">
+            <template>
+                <chat-message
+                        username="[[item.username]]"
+                        message="[[item.message]]"
+                        timestamp="[[item.timestamp]]">
+                </chat-message>
+            </template>
+        </iron-list>
+    </template>
+
+    <script>
+        Polymer(class Element {
+
+            beforeRegister() {
+                this.is = 'chat-message-list';
+                this.properties = {
+                    messages: {
+                        type: Array,
+                        value: []
+                    }
+                };
+                this.observers = [
+                  '_messagesChanged(messages.*)'
+                ];
+            }
+            created() {}
+            ready() {}
+            attached() {}
+            detached() {}
+            attributeChanged() {}
+
+            addMessage(message) {
+                this.push('messages', message);
+            }
+
+            _messagesChanged(messages) {
+                // show newest
+                this.$.list.scrollToIndex(this.messages.length - 1);
+            }
+        });
+    </script>
+</dom-module>

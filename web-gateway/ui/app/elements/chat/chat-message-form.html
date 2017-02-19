@@ -1,0 +1,54 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<dom-module id="chat-message-form">
+
+    <style include="iron-flex iron-flex-alignment">
+
+    </style>
+
+    <template>
+        <div class="horizontal layout">
+            <paper-input class="flex" placeholder="Message..." value="{{message::input}}"></paper-input>
+            <paper-fab icon="send" on-tap="submit"></paper-fab>
+            <iron-a11y-keys target="[[target]]" keys="enter" on-keys-pressed="submit"></iron-a11y-keys>
+        </div>
+    </template>
+
+    <script>
+        Polymer(class Element {
+
+            beforeRegister() {
+                this.is = 'chat-message-form';
+                this.properties = {
+                    message: {
+                        type: String,
+                        value: ""
+                    },
+                    target: {
+                        type: Object,
+                        value: function() {
+                            this.$.input;
+                        }
+                    }
+                };
+            }
+            created() {}
+            ready() {}
+            attached() {}
+            detached() {}
+            attributeChanged() {}
+
+            submit() {
+                if (this.message.trim().length > 0) {
+                    this.fire('submit', {message: this.message});
+                    this.message = "";
+                }
+            }
+        });
+  </script>
+</dom-module>

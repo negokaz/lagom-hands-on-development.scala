@@ -1,0 +1,60 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<script src="../../bower_components/time-elements/time-elements.js"></script>
+
+<dom-module id="chat-message">
+
+    <style include="iron-flex iron-flex-alignment">
+        :host {
+            display: block;
+            padding: 0.75rem;
+        }
+        .username {
+            font-weight: bold;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #919191;
+        }
+    </style>
+
+    <template>
+        <div class="horizontal layout">
+            <div class="flex">
+                <div class="username">[[username]]</div>
+                <div class="message">[[message]]</div>
+            </div>
+            <relative-time class="timestamp" datetime$="[[timestamp]]"></relative-time>
+        </div>
+    </template>
+
+    <script>
+        Polymer(class Element {
+
+            beforeRegister() {
+                this.is = 'chat-message';
+
+                this.properties = {
+                    username: {
+                        type: String,
+                        value: "Anonymous"
+                    },
+                    timestamp: {
+                        type: String,
+                        value: ""
+                    },
+                    message: {
+                        type: String,
+                        value: ""
+                    }
+                };
+            }
+            created() {}
+            ready() {}
+            attached() {}
+            detached() {}
+            attributeChanged() {}
+        });
+    </script>
+</dom-module>
