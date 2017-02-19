@@ -6,12 +6,6 @@ import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json}
 
-/**
-  * The lagom-chat service interface.
-  * <p>
-  * This describes everything that Lagom needs to know about how to serve and
-  * consume the LagomchatService.
-  */
 trait LagomchatService extends Service {
 
   def sendMessage(id: String): ServiceCall[RequestMessage, Done]
