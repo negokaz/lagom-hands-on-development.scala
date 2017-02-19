@@ -60,4 +60,4 @@ lazy val `web-gateway` = (project in file("web-gateway"))
     ReactJsKeys.harmony := true,
     ReactJsKeys.es6module := true
   )
-  .dependsOn(`lagom-chat-api`)
+  .dependsOn(`lagom-chat-api`, `lagom-chat-stream-api`)
