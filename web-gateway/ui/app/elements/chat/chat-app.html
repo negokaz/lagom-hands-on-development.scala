@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/web-socket-polymer/web-socket.html">
 
 <link rel="import" href="./chat-message-list.html">
 <link rel="import" href="./chat-message-form.html">
@@ -18,11 +20,17 @@
 
     <template>
         <section id="chat" class="vertical fit layout">
+            <h1 class="element">Lagom Chat</h1>
             <chat-message-list class="flex element"></chat-message-list>
             <chat-message-form class="element" on-submit="_handleSubmit"></chat-message-form>
         </section>
+        <web-socket
+            auto="true"
+            url="ws://localhost:9000/chat/messages"
+            on-message="_receiveMessage"></web-socket>
     </template>
 
+    <script src="/playRoutes.js"></script>
     <script>
         Polymer(class Element {
 
@@ -30,6 +38,10 @@
                 this.is = 'chat-app';
 
                 this.properties = {
+                    messagesURL: {
+                        type: String,
+                        value: playRoutes.controllers.ChatController.messageStream().webSocketURL()
+                    }
                 };
             }
             created() {}
@@ -39,8 +51,13 @@
             attributeChanged() {}
 
             _handleSubmit(e) {
+
+            }
+
+            _receiveMessage(e) {
+                var message = JSON.parse(e.detail.data);
                 this.querySelector("chat-message-list")
-                    .addMessage({username: "Me", message: e.detail.message, timestamp: new Date().toISOString()})
+                    .addMessage({username: message.user, message: message.body, timestamp: new Date(message.timestamp).toISOString()})
             }
         });
     </script>

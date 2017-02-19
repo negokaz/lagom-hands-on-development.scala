@@ -15,7 +15,7 @@
     <body>
         <h1>Lagom Chat</h1>
 
-        @helper.form(action = routes.HomeController.login()) {
+        @helper.form(action = routes.ChatController.login()) {
             @helper.inputText(field = loginForm("name"), 'placeholder -> "Who are you?")
             <input type="submit" value="login" />
         }

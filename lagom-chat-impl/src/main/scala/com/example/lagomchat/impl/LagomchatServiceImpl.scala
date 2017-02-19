@@ -1,27 +1,27 @@
 package com.example.lagomchat.impl
 
+import akka.{Done, NotUsed}
+import akka.stream.scaladsl.Source
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import com.example.lagomchat.api.LagomchatService
+import com.example.lagomchat.api.{LagomchatService, Message, RequestMessage}
+import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import com.lightbend.lagom.scaladsl.pubsub.TopicId
+import org.joda.time.DateTime
 
-/**
-  * Implementation of the LagomchatService.
-  */
-class LagomchatServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) extends LagomchatService {
+import scala.concurrent.Future
 
-  override def hello(id: String) = ServiceCall { _ =>
-    // Look up the lagom-chat entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[LagomchatEntity](id)
+class LagomchatServiceImpl(pubSub: PubSubRegistry) extends LagomchatService {
 
-    // Ask the entity the Hello command.
-    ref.ask(Hello(id, None))
+  val topic = pubSub.refFor(TopicId[Message])
+
+  override def sendMessage(id: String) = ServiceCall { requestMessage =>
+    val message = Message(requestMessage.body, id, DateTime.now())
+    topic.publish(message)
+    Future.successful(Done)
   }
 
-  override def useGreeting(id: String) = ServiceCall { request =>
-    // Look up the lagom-chat entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[LagomchatEntity](id)
-
-    // Tell the entity to use the greeting message specified.
-    ref.ask(UseGreetingMessage(request.body))
+  override def messageStream() = ServiceCall { _ =>
+    Future.successful(topic.subscriber)
   }
 }

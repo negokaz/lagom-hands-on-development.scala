@@ -31,7 +31,7 @@ class LagomchatServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAft
 
     "allow responding with a custom message" in {
       for {
-        _ <- client.useGreeting("Bob").invoke(Message("Hi"))
+        _ <- client.sendMessage("Bob").invoke(RequestMessage("Hi"))
         answer <- client.hello("Bob").invoke()
       } yield {
         answer should ===("Hi, Bob!")

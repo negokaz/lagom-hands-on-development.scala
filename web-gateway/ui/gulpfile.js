@@ -183,6 +183,9 @@ gulp.task('html', function() {
 gulp.task('vulcanize', function() {
   return gulp.src('.tmp/elements/elements.html')
     .pipe($.vulcanize({
+      excludes: [
+          '/playRoutes.js'
+      ],
       stripComments: true,
       inlineCss: true,
       inlineScripts: true

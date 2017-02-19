@@ -3,17 +3,19 @@ package controllers
 import javax.inject._
 
 import akka.NotUsed
-import com.example.lagomchat.api.LagomchatService
-import com.example.lagomchatstream.api.LagomchatStreamService
+import akka.stream.scaladsl.{Flow, Sink}
+import com.example.lagomchat.api.{LagomchatService, Message, RequestMessage}
 import com.github.mmizutani.playgulp.GulpAssets
 import play.api._
+import play.api.libs.json._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.Security.AuthenticatedBuilder
 import play.api.mvc._
 import play.api.routing.{JavaScriptReverseRoute, JavaScriptReverseRouter}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 object ChatController {
@@ -23,8 +25,12 @@ object ChatController {
 class ChatController @Inject()(gulpAssets: GulpAssets,
                                messages: MessagesApi,
                                chatService: LagomchatService,
-                               stream: LagomchatStreamService) extends Controller {
+                               implicit val executionContext: ExecutionContext) extends Controller {
   import ChatController._
+
+  val usernameKey = "username"
+
+  object Authenticated extends AuthenticatedBuilder(req => req.session.get(usernameKey))
 
   val loginForm = Form(
     mapping(
@@ -44,44 +50,43 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
         BadRequest(views.html.login(loginForm))
       },
       loginForm => {
-        Redirect("/chat").withSession(request.session + ("name" -> loginForm.name))
+        Redirect("/chat").withSession(request.session + (usernameKey -> loginForm.name))
       }
     )
   }
 
 
-  def chat = (UserAction andThen PermissionCheck).async { request =>
+  def chat = Authenticated.async { request =>
     gulpAssets.at("index.html")(request)
   }
 
-  def receiveMessage = Action.async { implicit request =>
-    Future.successful(NoContent)
+  def receiveMessage = Authenticated.async { implicit request =>
+    request.body.asJson.flatMap(_.validate[RequestMessage].asOpt).map { msg =>
+      chatService
+        .sendMessage(request.user)
+        .invoke(msg)
+        .map(_ => NoContent)
+    }.getOrElse(Future.successful(BadRequest))
   }
 
-  def messageStream = WebSocket.acceptOrResult[NotUsed, String] { request =>
-    Future.successful {
-      request.session.get("username") match {
-        case None => Left(Forbidden)
-        case Some(_) => Right(/* TODO: ストリームの実装 */???)
-      }
+  def messageStream = WebSocket.acceptOrResult[JsValue, JsValue] { request =>
+    request.session.get("username") match {
+      case None =>
+        Future.successful(Left(Forbidden))
+      case Some(_) =>
+        chatService.messageStream().invoke().map { source =>
+          val messageSource = source.map(m => Json.toJson(m))
+          Right(Flow.fromSinkAndSource(Sink.ignore, messageSource))
+        }
     }
   }
 
-  class UserRequest[A](val username: Option[String], request: Request[A]) extends WrappedRequest[A](request)
-
-  object UserAction extends ActionBuilder[UserRequest] with ActionTransformer[Request, UserRequest] {
-    override protected def transform[A](request: Request[A]) = Future.successful {
-      new UserRequest[A](request.session.get("username"), request)
-    }
-  }
-
-  object PermissionCheck extends ActionFilter[UserRequest] {
-    override protected def filter[A](request: UserRequest[A]) = Future.successful {
-      if (request.username.isEmpty) {
-        Some(Forbidden)
-      } else {
-        None
-      }
-    }
+  def playRoutes = Action { implicit request =>
+    Ok(
+      JavaScriptReverseRouter("playRoutes")(
+        routes.javascript.ChatController.messageStream,
+        routes.javascript.ChatController.receiveMessage
+      )
+    ).as("text/javascript")
   }
 }
