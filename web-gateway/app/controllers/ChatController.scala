@@ -5,6 +5,7 @@ import javax.inject._
 import akka.NotUsed
 import akka.stream.scaladsl.{Flow, Sink}
 import com.example.lagomchat.api.{LagomchatService, Message, RequestMessage}
+import com.example.lagomchat.user.api.{CreateUser, UserService}
 import com.github.mmizutani.playgulp.GulpAssets
 import play.api._
 import play.api.libs.json._
@@ -16,6 +17,7 @@ import play.api.mvc._
 import play.api.routing.{JavaScriptReverseRoute, JavaScriptReverseRouter}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 
 object ChatController {
@@ -25,6 +27,7 @@ object ChatController {
 class ChatController @Inject()(gulpAssets: GulpAssets,
                                messages: MessagesApi,
                                chatService: LagomchatService,
+                               userService: UserService,
                                implicit val executionContext: ExecutionContext) extends Controller {
   import ChatController._
 
@@ -43,18 +46,32 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
     Ok(views.html.login(loginForm))
   }
 
-  def login = Action { implicit request =>
+  def login = Action.async { implicit request =>
     implicit val msg = messages.preferred(request)
     loginForm.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.login(loginForm))
+        Future.successful(BadRequest(views.html.login(loginForm)))
       },
-      loginForm => {
-        Redirect("/chat").withSession(request.session + (usernameKey -> loginForm.name))
+      user => {
+        userService.createUser
+          .invoke(CreateUser(user.name))
+          .map { user =>
+            Redirect("/chat").withSession(request.session + (usernameKey -> user.name))
+          }
+          .recover {
+            case _ =>
+              BadRequest(views.html.login(loginForm))
+          }
       }
     )
   }
 
+  def users = Authenticated.async { _ =>
+    import com.example.lagomchat.user.api.User._
+    userService.getUsers
+      .invoke()
+      .map(users => Ok(Json.toJson(users)))
+  }
 
   def chat = Authenticated.async { request =>
     gulpAssets.at("index.html")(request)

@@ -1,10 +1,8 @@
 package com.example.lagomchat.impl
 
-import akka.{Done, NotUsed}
-import akka.stream.scaladsl.Source
+import akka.{Done}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import com.example.lagomchat.api.{LagomchatService, Message, RequestMessage}
+import com.example.lagomchat.api.{LagomchatService, Message}
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import com.lightbend.lagom.scaladsl.pubsub.TopicId
 import org.joda.time.DateTime

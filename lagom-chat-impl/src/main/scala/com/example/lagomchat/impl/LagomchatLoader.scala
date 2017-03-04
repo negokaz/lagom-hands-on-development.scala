@@ -2,7 +2,6 @@ package com.example.lagomchat.impl
 
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
-import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
@@ -23,7 +22,6 @@ class LagomchatLoader extends LagomApplicationLoader {
 
 abstract class LagomchatApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-    with CassandraPersistenceComponents
     with PubSubComponents
     with AhcWSComponents {
 
@@ -31,10 +29,4 @@ abstract class LagomchatApplication(context: LagomApplicationContext)
   override lazy val lagomServer = LagomServer.forServices(
     bindService[LagomchatService].to(wire[LagomchatServiceImpl])
   )
-
-  // Register the JSON serializer registry
-  override lazy val jsonSerializerRegistry = LagomchatSerializerRegistry
-
-  // Register the lagom-chat persistent entity
-  persistentEntityRegistry.register(wire[LagomchatEntity])
 }

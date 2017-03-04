@@ -1,5 +1,6 @@
 
 import com.example.lagomchat.api.LagomchatService
+import com.example.lagomchat.user.api.UserService
 import com.github.mmizutani.playgulp.GulpAssets
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.api.{ServiceAcl, ServiceInfo}
@@ -7,7 +8,7 @@ import com.lightbend.lagom.scaladsl.client.LagomServiceClientComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, Mode}
 import play.api.ApplicationLoader.Context
-import play.api.i18n.{I18nComponents}
+import play.api.i18n.I18nComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import com.softwaremill.macwire._
 import controllers.{Assets, ChatController}
@@ -31,6 +32,7 @@ abstract class WebGateway(context: Context) extends BuiltInComponentsFromContext
   override implicit lazy val executionContext: ExecutionContext = actorSystem.dispatcher
 
   lazy val chatService = serviceClient.implement[LagomchatService]
+  lazy val userService = serviceClient.implement[UserService]
 
   lazy val controller = wire[ChatController]
 
