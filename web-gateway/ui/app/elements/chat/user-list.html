@@ -3,18 +3,25 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 
 <dom-module id="user-list">
 
     <style>
+        .header {
+            color: gray;
+            min-height: 3rem;
+        }
+        .user {
+            min-height: 3rem;
+        }
     </style>
 
     <template>
+        <div class="header">Online Users</div>
         <iron-list id="list" items="{{users}}">
             <template>
-                <div>
-                    <span>[[item.name]]</span>
-                </div>
+                <div class="user">[[item.name]]</div>
             </template>
         </iron-list>
         <iron-ajax

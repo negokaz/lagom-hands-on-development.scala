@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/web-socket-polymer/web-socket.html">
 
 <link rel="import" href="./chat-message-list.html">
@@ -12,20 +13,33 @@
 
 <dom-module id="chat-app">
 
-    <style include="iron-flex iron-flex-alignment">
+    <style include="iron-flex iron-flex-alignment iron-positioning">
         .element {
             padding: 1rem;
+        }
+
+        app-toolbar {
+            background-color: #652b7c;
+            color: #fff;
         }
     </style>
 
     <template>
         <app-drawer-layout class="flex vertical layout">
-            <app-drawer>
-                <about-me></about-me>
-                <user-list></user-list>
+            <app-drawer class="vertical fit layout">
+                <paper-material class="flex vertical fit layout">
+                    <about-me></about-me>
+                    <user-list class="flex element"></user-list>
+                </paper-material>
             </app-drawer>
-            <chat-message-list class="flex element"></chat-message-list>
-            <chat-message-form class="element" on-submit="_handleSubmit"></chat-message-form>
+            <div class="vertical fit layout">
+                <app-toolbar>
+                    <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                    <div main-title>Lagom Chat</div>
+                </app-toolbar>
+                <chat-message-list class="flex element"></chat-message-list>
+                <chat-message-form class="element" on-submit="_handleSubmit"></chat-message-form>
+            </div>
         </app-drawer-layout>
         <web-socket
             auto="true"

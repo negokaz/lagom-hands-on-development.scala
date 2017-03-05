@@ -5,12 +5,21 @@
 <dom-module id="about-me">
 
     <style>
+        :host {
+            background-color: #421540;
+            color: #fff;
+        }
+        .my-name {
+            padding: 1.5rem 0;
+            font-weight: bold;
+            size: 1.5rem;
+            vertical-align: middle;
+            text-align: center;
+        }
     </style>
 
     <template>
-        <div>
-            <span>[[my.name]]</span>
-        </div>
+        <div class="my-name">[[my.name]]</div>
         <iron-ajax
                 auto
                 url="[[url]]"
