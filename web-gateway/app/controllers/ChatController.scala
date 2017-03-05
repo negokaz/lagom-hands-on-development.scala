@@ -2,22 +2,20 @@ package controllers
 
 import javax.inject._
 
-import akka.NotUsed
 import akka.stream.scaladsl.{Flow, Sink}
-import com.example.lagomchat.api.{LagomchatService, Message, RequestMessage}
+import com.example.lagomchat.message.api.{MessageService, RequestMessage}
 import com.example.lagomchat.user.api.{CreateUser, UserService}
 import com.github.mmizutani.playgulp.GulpAssets
 import play.api._
 import play.api.libs.json._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.Security.AuthenticatedBuilder
 import play.api.mvc._
-import play.api.routing.{JavaScriptReverseRoute, JavaScriptReverseRouter}
+import play.api.routing.JavaScriptReverseRouter
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 
 object ChatController {
@@ -26,7 +24,7 @@ object ChatController {
 
 class ChatController @Inject()(gulpAssets: GulpAssets,
                                messages: MessagesApi,
-                               chatService: LagomchatService,
+                               messageService: MessageService,
                                userService: UserService,
                                implicit val executionContext: ExecutionContext) extends Controller {
   import ChatController._
@@ -100,7 +98,7 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
 
   def receiveMessage = Authenticated.async { implicit request =>
     request.body.asJson.flatMap(_.validate[RequestMessage].asOpt).map { msg =>
-      chatService
+      messageService
         .sendMessage(request.user)
         .invoke(msg)
         .map(_ => NoContent)
@@ -112,7 +110,7 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
       case None =>
         Future.successful(Left(Forbidden))
       case Some(_) =>
-        chatService.messageStream().invoke().map { source =>
+        messageService.messageStream().invoke().map { source =>
           val messageSource = source.map(m => Json.toJson(m))
           Right(Flow.fromSinkAndSource(Sink.ignore, messageSource))
         }

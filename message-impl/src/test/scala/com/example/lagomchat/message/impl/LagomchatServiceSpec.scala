@@ -1,4 +1,4 @@
-package com.example.lagomchat.impl
+package com.example.lagomchat.message.impl
 
 import java.io.File
 
@@ -7,6 +7,7 @@ import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import com.example.lagomchat.api._
+import com.example.lagomchat.message.api.RequestMessage
 
 class LagomchatServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -14,7 +15,7 @@ class LagomchatServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAft
     ServiceTest.defaultSetup
       .withCassandra(true)
   ) { ctx =>
-    new LagomchatApplication(ctx) with LocalServiceLocator
+    new MessageApplication(ctx) with LocalServiceLocator
   }
 
   val client = server.serviceClient.implement[LagomchatService]

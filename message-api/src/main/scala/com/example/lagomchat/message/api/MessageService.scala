@@ -1,4 +1,4 @@
-package com.example.lagomchat.api
+package com.example.lagomchat.message.api
 
 import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
@@ -6,7 +6,7 @@ import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json}
 
-trait LagomchatService extends Service {
+trait MessageService extends Service {
 
   def sendMessage(id: String): ServiceCall[RequestMessage, Done]
 
@@ -14,7 +14,7 @@ trait LagomchatService extends Service {
 
   override final def descriptor = {
     import Service._
-    named("lagom-chat").withCalls(
+    named("message").withCalls(
       pathCall("/api/messages/:id", sendMessage _),
       pathCall("/api/messages", messageStream _)
     ).withAutoAcl(true)

@@ -9,16 +9,16 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 
 lazy val `lagom-chat` = (project in file("."))
-  .aggregate(`lagom-chat-api`, `lagom-chat-impl`, `user-api`, `user-impl`, `web-gateway`)
+  .aggregate(`message-api`, `message-impl`, `user-api`, `user-impl`, `web-gateway`)
 
-lazy val `lagom-chat-api` = (project in file("lagom-chat-api"))
+lazy val `message-api` = (project in file("message-api"))
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslApi
     )
   )
 
-lazy val `lagom-chat-impl` = (project in file("lagom-chat-impl"))
+lazy val `message-impl` = (project in file("message-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
@@ -29,7 +29,7 @@ lazy val `lagom-chat-impl` = (project in file("lagom-chat-impl"))
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(`lagom-chat-api`)
+  .dependsOn(`message-api`)
 
 lazy val `user-api` = (project in file("user-api"))
   .settings(
@@ -59,4 +59,4 @@ lazy val `web-gateway` = (project in file("web-gateway"))
       macwire
     )
   )
-  .dependsOn(`lagom-chat-api`, `user-api`)
+  .dependsOn(`message-api`, `user-api`)

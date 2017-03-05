@@ -1,4 +1,4 @@
-package com.example.lagomchat.impl
+package com.example.lagomchat.message.impl
 
 import akka.actor.ActorSystem
 import akka.testkit.TestKit

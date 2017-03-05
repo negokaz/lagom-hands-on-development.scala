@@ -1,7 +1,5 @@
 package com.example.lagomchat.user.impl
 
-import java.util.UUID
-
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType

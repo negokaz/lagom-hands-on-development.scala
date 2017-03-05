@@ -1,5 +1,5 @@
 
-import com.example.lagomchat.api.LagomchatService
+import com.example.lagomchat.message.api.MessageService
 import com.example.lagomchat.user.api.UserService
 import com.github.mmizutani.playgulp.GulpAssets
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
@@ -31,7 +31,7 @@ abstract class WebGateway(context: Context) extends BuiltInComponentsFromContext
 
   override implicit lazy val executionContext: ExecutionContext = actorSystem.dispatcher
 
-  lazy val chatService = serviceClient.implement[LagomchatService]
+  lazy val messageService = serviceClient.implement[MessageService]
   lazy val userService = serviceClient.implement[UserService]
 
   lazy val controller = wire[ChatController]
