@@ -66,11 +66,32 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
     )
   }
 
-  def users = Authenticated.async { _ =>
+  def aboutMe = Authenticated.async { request =>
+    import com.example.lagomchat.user.api.User._
+    userService.getUser(request.user)
+        .invoke()
+        .map(user => Ok(Json.toJson(user)))
+  }
+
+  def users = Authenticated.async { request =>
     import com.example.lagomchat.user.api.User._
     userService.getUsers
       .invoke()
+      // 自分自身は除外
+      .map(users => users.filter(user => user.name != request.user))
       .map(users => Ok(Json.toJson(users)))
+  }
+
+  def userEvents = WebSocket.acceptOrResult[JsValue, JsValue] { request =>
+    request.session.get("username") match {
+      case None =>
+        Future.successful(Left(Forbidden))
+      case Some(_) =>
+        userService.userEvents().invoke().map { source =>
+          val eventSource = source.map(m => Json.toJson(m))
+          Right(Flow.fromSinkAndSource(Sink.ignore, eventSource))
+        }
+    }
   }
 
   def chat = Authenticated.async { request =>
@@ -102,7 +123,10 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
     Ok(
       JavaScriptReverseRouter("playRoutes")(
         routes.javascript.ChatController.messageStream,
-        routes.javascript.ChatController.receiveMessage
+        routes.javascript.ChatController.receiveMessage,
+        routes.javascript.ChatController.users,
+        routes.javascript.ChatController.aboutMe,
+        routes.javascript.ChatController.userEvents
       )
     ).as("text/javascript")
   }

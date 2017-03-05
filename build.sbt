@@ -4,6 +4,7 @@ version in ThisBuild := "1.0-SNAPSHOT"
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.11.8"
 
+val playJsonDerivedCodecs = "org.julienrf" %% "play-json-derived-codecs" % "3.3"
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 
@@ -33,7 +34,8 @@ lazy val `lagom-chat-impl` = (project in file("lagom-chat-impl"))
 lazy val `user-api` = (project in file("user-api"))
   .settings(
     libraryDependencies ++= Seq(
-      lagomScaladslApi
+      lagomScaladslApi,
+      playJsonDerivedCodecs
     )
   )
 
@@ -42,6 +44,7 @@ lazy val `user-impl` = (project in file("user-impl"))
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceCassandra,
+      lagomScaladslPubSub,
       macwire
     )
   )

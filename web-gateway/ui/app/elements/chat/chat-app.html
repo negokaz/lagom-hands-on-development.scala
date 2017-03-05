@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
@@ -6,27 +7,29 @@
 
 <link rel="import" href="./chat-message-list.html">
 <link rel="import" href="./chat-message-form.html">
+<link rel="import" href="./about-me.html">
+<link rel="import" href="./user-list.html">
 
 <dom-module id="chat-app">
 
     <style include="iron-flex iron-flex-alignment">
-        #chat {
-            height: 100%;
-        }
         .element {
             padding: 1rem;
         }
     </style>
 
     <template>
-        <section id="chat" class="vertical fit layout">
-            <h1 class="element">Lagom Chat</h1>
+        <app-drawer-layout class="flex vertical layout">
+            <app-drawer>
+                <about-me></about-me>
+                <user-list></user-list>
+            </app-drawer>
             <chat-message-list class="flex element"></chat-message-list>
             <chat-message-form class="element" on-submit="_handleSubmit"></chat-message-form>
-        </section>
+        </app-drawer-layout>
         <web-socket
             auto="true"
-            url="ws://localhost:9000/chat/messages"
+            url="[[messagesURL]]"
             on-message="_receiveMessage"></web-socket>
     </template>
 

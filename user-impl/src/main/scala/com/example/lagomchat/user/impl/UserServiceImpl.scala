@@ -8,22 +8,31 @@ import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import com.lightbend.lagom.scaladsl.pubsub.TopicId
+
+import scala.concurrent.Future
 
 class UserServiceImpl(registry: PersistentEntityRegistry,
                       cassandraSession: CassandraSession,
-                      system: ActorSystem)
+                      system: ActorSystem,
+                      pubSub: PubSubRegistry)
                      (implicit materializer: Materializer) extends api.UserService {
 
   implicit val dispatcher = system.dispatcher
 
   private def refFor(name: String) = registry.refFor[UserEntity](name)
 
+  val topic = pubSub.refFor(TopicId[api.UserEvent])
+
   override def createUser: ServiceCall[api.CreateUser, api.User] = ServiceCall { createUser =>
 
     val name = createUser.name
 
     refFor(name).ask(CreateUser(name)).map { _ =>
-      api.User(name)
+      val user = api.User(name)
+      topic.publish(api.UserCreated(user))
+      user
     }
   }
 
@@ -41,5 +50,9 @@ class UserServiceImpl(registry: PersistentEntityRegistry,
       .select("SELECT name FROM user")
       .map(row => api.User(row.getString("name")))
       .runFold(Seq[api.User]())((acc, e) => acc :+ e)
+  }
+
+  override def userEvents = ServiceCall { _ =>
+    Future.successful(topic.subscriber)
   }
 }

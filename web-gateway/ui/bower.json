@@ -8,7 +8,8 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
     "polymer": "Polymer/polymer#^1.2.0",
-    "web-socket-polymer": "^1.0.1"
+    "web-socket-polymer": "^1.0.1",
+    "app-layout": "PolymerElements/app-layout#^0.10.7"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

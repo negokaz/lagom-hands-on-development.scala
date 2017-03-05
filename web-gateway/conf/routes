@@ -11,6 +11,9 @@ POST    /login                      controllers.ChatController.login
 GET     /chat                       controllers.ChatController.chat
 POST    /chat                       controllers.ChatController.receiveMessage
 GET     /chat/messages              controllers.ChatController.messageStream
+GET     /users                      controllers.ChatController.users
+GET     /users/self                 controllers.ChatController.aboutMe
+GET     /users/events               controllers.ChatController.userEvents
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
