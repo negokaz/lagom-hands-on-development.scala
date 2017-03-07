@@ -25,12 +25,12 @@ case class RequestMessage(body: String)
 
 object RequestMessage {
 
-  implicit val format: Format[RequestMessage] = Json.format[RequestMessage]
+  implicit val format: Format[RequestMessage] = Json.format
 }
 
 case class Message(body: String, user: String, timestamp: DateTime)
 
 object Message {
 
-  implicit val format: Format[Message] = Json.format[Message]
+  implicit val format: Format[Message] = Json.format
 }
