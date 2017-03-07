@@ -99,6 +99,8 @@ var optimizeHtmlTask = function(src, dest) {
     }));
 };
 
+gulp.task('build', ['default']);
+
 // Transpile all JS to ES5.
 gulp.task('js', function () {
     return gulp.src(['app/**/*.{js,html}', '!app/bower_components/**/*'])
