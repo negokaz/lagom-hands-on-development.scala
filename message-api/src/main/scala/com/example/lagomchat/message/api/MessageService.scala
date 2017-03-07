@@ -12,11 +12,14 @@ trait MessageService extends Service {
 
   def messageStream(): ServiceCall[NotUsed, Source[Message, NotUsed]]
 
+  def messages(): ServiceCall[NotUsed, Seq[Message]]
+
   override final def descriptor = {
     import Service._
     named("message").withCalls(
       pathCall("/api/messages/:id", sendMessage _),
-      pathCall("/api/messages", messageStream _)
+      pathCall("/api/messagestream", messageStream),
+      pathCall("/api/messages", messages)
     ).withAutoAcl(true)
   }
 }

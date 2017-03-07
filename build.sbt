@@ -1,3 +1,5 @@
+import com.github.mmizutani.sbt.gulp.Import.PlayGulpKeys
+
 organization in ThisBuild := "com.example"
 version in ThisBuild := "1.0-SNAPSHOT"
 
@@ -22,6 +24,7 @@ lazy val `message-impl` = (project in file("message-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
+      lagomScaladslPersistenceCassandra,
       lagomScaladslPubSub,
       lagomScaladslTestKit,
       macwire,

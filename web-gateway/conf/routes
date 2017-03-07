@@ -10,7 +10,8 @@ GET     /playRoutes.js              controllers.ChatController.playRoutes
 POST    /login                      controllers.ChatController.login
 GET     /chat                       controllers.ChatController.chat
 POST    /chat                       controllers.ChatController.receiveMessage
-GET     /chat/messages              controllers.ChatController.messageStream
+GET     /chat/messageStream         controllers.ChatController.messageStream
+GET     /chat/messages              controllers.ChatController.chatMessages
 GET     /users                      controllers.ChatController.users
 GET     /users/others               controllers.ChatController.otherUsers
 GET     /users/self                 controllers.ChatController.aboutMe

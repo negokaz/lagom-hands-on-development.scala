@@ -124,11 +124,20 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
     }
   }
 
+  def chatMessages = Authenticated.async { _ =>
+    import com.example.lagomchat.message.api.Message._
+
+    messageService.messages()
+      .invoke()
+      .map(messages => Ok(Json.toJson(messages)))
+  }
+
   def playRoutes = Action { implicit request =>
     Ok(
       JavaScriptReverseRouter("playRoutes")(
         routes.javascript.ChatController.messageStream,
         routes.javascript.ChatController.receiveMessage,
+        routes.javascript.ChatController.chatMessages,
         routes.javascript.ChatController.otherUsers,
         routes.javascript.ChatController.aboutMe,
         routes.javascript.ChatController.userEvents

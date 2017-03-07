@@ -3,6 +3,8 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
 
 <link rel="import" href="./chat-message.html">
 
@@ -32,8 +34,16 @@
                 </chat-message>
             </template>
         </iron-list>
+
+        <iron-ajax
+                auto
+                url="[[messagesURL]]"
+                handle-as="json"
+                on-response="_receiveMessages"
+                debounce-duration="300"></iron-ajax>
     </template>
 
+    <script src="/playRoutes.js"></script>
     <script>
         Polymer(class Element {
 
@@ -43,6 +53,10 @@
                     messages: {
                         type: Array,
                         value: []
+                    },
+                    messagesURL: {
+                        type: String,
+                        value: playRoutes.controllers.ChatController.chatMessages().absoluteURL()
                     }
                 };
                 this.observers = [
@@ -62,6 +76,13 @@
             _messagesChanged(messages) {
                 // show newest
                 this.$.list.scrollToIndex(this.messages.length - 1);
+            }
+
+            _receiveMessages(e) {
+                var messages = e.detail.xhr.response;
+                for (var message of messages) {
+                    this.addMessage({username: message.user, message: message.body, timestamp: new Date(message.timestamp).toISOString()})
+                }
             }
         });
     </script>
