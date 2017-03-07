@@ -33,7 +33,7 @@ class UserServiceImpl(registry: PersistentEntityRegistry,
       val user = api.User(name)
       topic.publish(api.UserCreated(user))
       user
-    }
+    }.map(beSlowIfKilled)
   }
 
   override def getUser(name: String): ServiceCall[NotUsed, api.User] = ServiceCall { _ =>
@@ -42,7 +42,7 @@ class UserServiceImpl(registry: PersistentEntityRegistry,
         api.User(user.name)
       case None =>
         throw NotFound(s"User with name $name")
-    }
+    }.map(beSlowIfKilled)
   }
 
   override def getUsers: ServiceCall[NotUsed, Seq[api.User]] = ServiceCall { _ =>
@@ -50,9 +50,16 @@ class UserServiceImpl(registry: PersistentEntityRegistry,
       .select("SELECT name FROM user")
       .map(row => api.User(row.getString("name")))
       .runFold(Seq[api.User]())((acc, e) => acc :+ e)
+      .map(beSlowIfKilled)
   }
 
   override def userEvents = ServiceCall { _ =>
-    Future.successful(topic.subscriber)
+    Future.successful(topic.subscriber).map(beSlowIfKilled)
+  }
+
+  def beSlowIfKilled[T](v: T): T = {
+    val kill = system.settings.config.getBoolean("user-service.kill")
+    if (kill) { Thread.sleep(10000) }
+    v
   }
 }

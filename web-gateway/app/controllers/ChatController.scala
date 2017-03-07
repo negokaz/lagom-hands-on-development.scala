@@ -71,12 +71,19 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
         .map(user => Ok(Json.toJson(user)))
   }
 
-  def users = Authenticated.async { request =>
+  def otherUsers = Authenticated.async { request =>
     import com.example.lagomchat.user.api.User._
     userService.getUsers
       .invoke()
       // 自分自身は除外
       .map(users => users.filter(user => user.name != request.user))
+      .map(users => Ok(Json.toJson(users)))
+  }
+
+  def users = Action.async { request =>
+    import com.example.lagomchat.user.api.User._
+    userService.getUsers
+      .invoke()
       .map(users => Ok(Json.toJson(users)))
   }
 
@@ -122,7 +129,7 @@ class ChatController @Inject()(gulpAssets: GulpAssets,
       JavaScriptReverseRouter("playRoutes")(
         routes.javascript.ChatController.messageStream,
         routes.javascript.ChatController.receiveMessage,
-        routes.javascript.ChatController.users,
+        routes.javascript.ChatController.otherUsers,
         routes.javascript.ChatController.aboutMe,
         routes.javascript.ChatController.userEvents
       )

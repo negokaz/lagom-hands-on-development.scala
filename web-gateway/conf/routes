@@ -12,6 +12,7 @@ GET     /chat                       controllers.ChatController.chat
 POST    /chat                       controllers.ChatController.receiveMessage
 GET     /chat/messages              controllers.ChatController.messageStream
 GET     /users                      controllers.ChatController.users
+GET     /users/others               controllers.ChatController.otherUsers
 GET     /users/self                 controllers.ChatController.aboutMe
 GET     /users/events               controllers.ChatController.userEvents
 
