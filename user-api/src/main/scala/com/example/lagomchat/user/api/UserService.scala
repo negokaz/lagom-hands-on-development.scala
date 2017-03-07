@@ -24,7 +24,7 @@ trait UserService extends Service {
       pathCall("/api/user/:name", getUser _),
       pathCall("/api/user", getUsers),
       pathCall("/api/user/events/", userEvents)
-    )
+    ).withAutoAcl(true)
   }
 }
 
