@@ -22,20 +22,23 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
 
   implicit val dispatcher = system.dispatcher
 
-  // TODO: メッセージを配信するための Topic を作成
+  // メッセージを配信するための Topic を作成
+  val topic = pubSub.refFor(TopicId[Message])
 
   // TODO: Entity の参照を取得
 
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
-    // TODO: メッセージを PubSub に publish する
+    val message = Message(requestMessage.body, userId, DateTime.now())
+    // メッセージを PubSub に publish する
+    topic.publish(message)
     // TODO: メッセージを Entity に送る
     println(s"$requestMessage from $userId")
     Future.successful(Done)
   }
 
   override def messageStream() = ServiceCall { _ =>
-    // TODO: PubSub で subscribe したメッセージを流す
-    Future.successful(Source.empty)
+    // PubSub で subscribe したメッセージを流す
+    Future.successful(topic.subscriber)
   }
 
   override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
