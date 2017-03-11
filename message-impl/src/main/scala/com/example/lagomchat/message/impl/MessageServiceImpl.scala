@@ -23,7 +23,7 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
 
   val topic = pubSub.refFor(TopicId[Message])
 
-  val entity = registry.refFor[RoomEntity]("global")
+  val entity = registry.refFor[RoomEntity](RoomEntity.RoomId)
 
   override def sendMessage(id: String) = ServiceCall { requestMessage =>
     val message = Message(requestMessage.body, id, DateTime.now())
@@ -48,7 +48,7 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
           | FROM message
           | WHERE roomId = ?
           | ORDER BY timestamp ASC
-        """.stripMargin, "room")
+        """.stripMargin,  RoomEntity.RoomId)
       .map { row =>
         Message(
           body = row.getString("message"),

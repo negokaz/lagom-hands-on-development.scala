@@ -11,12 +11,16 @@ import play.api.libs.json.{Format, Json}
 
 import scala.collection.immutable.Seq
 
+object RoomEntity {
+  val RoomId = "global-room"
+}
+
 class RoomEntity extends PersistentEntity {
   override type Command = RoomCommand
   override type Event = RoomEvent
   override type State = RoomState
 
-  override def initialState = RoomState(roomId = "room", countOfMessage = 0)
+  override def initialState = RoomState(roomId = RoomEntity.RoomId, countOfMessage = 0)
 
   override def behavior = {
 
