@@ -8,10 +8,45 @@ import play.api.libs.json.{Format, Json}
 
 trait MessageService extends Service {
 
+  /**
+    * POST /api/messages/:id
+    *
+    * Request:
+    *
+    *   { body: "わーい！" }
+    *
+    * Response:
+    *
+    *   HTTP/1.1 200 OK
+    *
+    */
   def sendMessage(id: String): ServiceCall[RequestMessage, Done]
 
+  /**
+    * GET /api/messagestream
+    *
+    * Response (WebSocket):
+    *
+    *   [
+    *     { body: "わーい！", user: "user1", timestamp: 1488866889258 },
+    *     { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
+    *   ]
+    */
   def messageStream(): ServiceCall[NotUsed, Source[Message, NotUsed]]
 
+  /**
+    * GET /api/messages
+    *
+    * Response:
+    *
+    *   HTTP/1.1 200 OK
+    *
+    *   [
+    *     { body: "わーい！", user: "user1", timestamp: 1488866889258 },
+    *     { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
+    *   ]
+    *
+    */
   def messages(): ServiceCall[NotUsed, Seq[Message]]
 
   override final def descriptor = {
@@ -22,6 +57,11 @@ trait MessageService extends Service {
   }
 }
 
+/**
+  * クライアントから POST されるメッセージ
+  *
+  * @param body メッセージの本文
+  */
 case class RequestMessage(body: String)
 
 object RequestMessage {
@@ -29,6 +69,13 @@ object RequestMessage {
   implicit val format: Format[RequestMessage] = Json.format
 }
 
+/**
+  * クライアントにレスポンスするメッセージ
+  *
+  * @param body メッセージの本文
+  * @param user メッセージを投稿したユーザーのID
+  * @param timestamp メッセージを投稿した時間
+  */
 case class Message(body: String, user: String, timestamp: DateTime)
 
 object Message {
