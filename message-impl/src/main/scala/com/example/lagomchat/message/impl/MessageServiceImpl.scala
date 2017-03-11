@@ -29,6 +29,7 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     // TODO: メッセージを PubSub に publish する
     // TODO: メッセージを Entity に送る
+    println(s"$requestMessage from $userId")
     Future.successful(Done)
   }
 

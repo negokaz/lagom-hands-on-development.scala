@@ -17,7 +17,7 @@ class UserEventProcessor(session: CassandraSession, readSide: CassandraReadSide,
     val builder = readSide.builder[UserEvent]("usersummaryoffset")
     builder.setGlobalPrepare(createTable)
     builder.setPrepare(_ => prepareWriteUser())
-    // TODO: Entity で起きたイベントを Read モデルに反映する
+    builder.setEventHandler[UserCreated](processUserAdded)
     builder.build()
   }
 

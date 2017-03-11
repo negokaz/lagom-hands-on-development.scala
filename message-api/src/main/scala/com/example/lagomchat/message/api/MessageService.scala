@@ -56,7 +56,10 @@ trait MessageService extends Service {
   override final def descriptor = {
     import Service._
     named("message").withCalls(
-      // TODO: パスとメソッドのマッピングを定義
+      // パスとメソッドのマッピングを定義
+      pathCall("/api/messages/:userId", sendMessage _),
+      pathCall("/api/messagestream", messageStream),
+      pathCall("/api/messages", messages)
     ).withAutoAcl(true)
   }
 }
