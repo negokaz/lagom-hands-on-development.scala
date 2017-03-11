@@ -9,7 +9,8 @@
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
     "polymer": "Polymer/polymer#^1.2.0",
     "web-socket-polymer": "^1.0.1",
-    "app-layout": "PolymerElements/app-layout#^0.10.7"
+    "app-layout": "PolymerElements/app-layout#^0.10.7",
+    "time-elements": "^0.6.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

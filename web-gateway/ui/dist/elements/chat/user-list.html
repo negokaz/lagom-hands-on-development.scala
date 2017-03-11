@@ -1,0 +1,33 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+</head><body><dom-module id="user-list">
+
+    <style>
+        .header {
+            color: gray;
+            min-height: 3rem;
+        }
+        .user {
+            min-height: 3rem;
+        }
+    </style>
+
+    <template>
+        <div class="header">Online Users</div>
+        <iron-list id="list" items="{{users}}">
+            <template>
+                <div class="user">[[item.name]]</div>
+            </template>
+        </iron-list>
+        <iron-ajax auto="" url="[[usersURL]]" handle-as="json" last-response="{{users}}" debounce-duration="300"></iron-ajax>
+        <web-socket auto="true" url="[[userStreamURL]]" on-message="_receiveUserEvent"></web-socket>
+    </template>
+
+    <script src="/playRoutes.js"></script>
+    </dom-module>
+<script src="user-list.js"></script></body></html>

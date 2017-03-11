@@ -1,5 +1,3 @@
-import com.github.mmizutani.sbt.gulp.Import.PlayGulpKeys
-
 organization in ThisBuild := "com.example"
 version in ThisBuild := "1.0-SNAPSHOT"
 
@@ -53,13 +51,19 @@ lazy val `user-impl` = (project in file("user-impl"))
   )
   .dependsOn(`user-api`)
 
+val playGulp = "com.github.mmizutani" %% "play-gulp" % "0.1.5" exclude("com.typesafe.play", "play")
+
 lazy val `web-gateway` = (project in file("web-gateway"))
-  .enablePlugins(PlayScala, LagomPlayScala, PlayGulpPlugin)
+// ハンズオンで npm, bower, gulp をインストールしなくても良いように
+// PlayGulpPlugin を無効化
+//.enablePlugins(PlayScala, LagomPlayScala, PlayGulpPlugin)
+  .enablePlugins(PlayScala, LagomPlayScala)
   .settings(
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
       filters,
-      macwire
+      macwire,
+      playGulp
     )
   )
   .dependsOn(`message-api`, `user-api`)

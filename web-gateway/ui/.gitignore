@@ -1,4 +1,5 @@
 /node_modules
-/dist
+# ハンズオン用にビルド済みのUIコンポーネントをリポジトリに入れておく"
+# /dist
 /.tmp
 bower_components
