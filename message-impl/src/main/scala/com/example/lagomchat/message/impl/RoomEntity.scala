@@ -39,8 +39,9 @@ class RoomEntity extends PersistentEntity {
       Actions()
         .onCommand[PostMessage, Done] {
           case (_, ctx, _) =>
-            // TODO: もうメッセージが投稿できないのでエラーの応答を返す
-            ???
+            // もうメッセージが投稿できないのでエラーの応答を返す
+            ctx.invalidCommand("This room has been already closed")
+            ctx.done
         }
 
     case RoomState(_, _) =>
