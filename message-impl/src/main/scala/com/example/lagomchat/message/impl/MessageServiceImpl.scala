@@ -21,7 +21,7 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
 
   implicit val dispatcher = system.dispatcher
 
-  override def sendMessage(id: String) = ServiceCall { requestMessage =>
+  override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     // TODO: メッセージを PubSub に publish する
     // TODO: メッセージを Entity に送る
     ???

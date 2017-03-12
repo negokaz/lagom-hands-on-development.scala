@@ -9,7 +9,7 @@ import play.api.libs.json.{Format, Json}
 trait MessageService extends Service {
 
   /**
-    * POST /api/messages/:id
+    * POST /api/messages/:userId
     *
     * Request:
     *
@@ -20,7 +20,7 @@ trait MessageService extends Service {
     *   HTTP/1.1 200 OK
     *
     */
-  def sendMessage(id: String): ServiceCall[RequestMessage, Done]
+  def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
 
   /**
     * GET /api/messagestream
