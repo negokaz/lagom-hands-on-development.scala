@@ -1,44 +1,27 @@
 @import "shapes.less";
 @import "common.less";
 @import "layout.less";
+@import "color.less";
 
 /* --- option --- */
 
 .glass {
-  color: rgba(0, 0, 0, 0.70);
   background-color: rgba(255, 255, 255, 0.65);
 }
 
 .glass-deep {
-  color: rgba(0, 0, 0, 0.70);
   background-color: rgba(255, 255, 255, 0.90);
 }
 
-.accent {
-  color: #E91E63;
-}
+.whisper {
 
-.heavy {
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.quiet {
+  color: @disabled-text-color;
 
   img {
     opacity: 0.3;
   }
 }
 
-em {
-  .heavy;
-  font-weight: bold;
-  font-style: normal;
-}
-
-strong {
-  .accent;
-  font-weight: bold;
-}
 
 /*
  * ex)
@@ -53,7 +36,15 @@ strong {
 /* -------------- */
 
 .remark-slide-content {
-  color: rgba(0, 0, 0, 0.70);
+  color: @secondary-text-color;
+}
+
+.remark-code {
+  padding: 0.5rem 0 !important;
+}
+
+.remark-code-line {
+  padding: 0 0.5rem;
 }
 
 .remark-code-line-highlighted {
@@ -61,24 +52,33 @@ strong {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: rgba(0, 0, 0, 0.87);
+  color: @primary-text-color;
 }
 
-strong, em {
+em {
+  color: @primary-text-color;
+  font-weight: bold;
+  font-style: normal;
+}
+
+strong {
+  color: @accent-color;
+  font-weight: bold;
 }
 
 a {
-  color: #2196F3;
+  color: @primary-color;
 }
 
 code {
-  color: rgba(0, 0, 0, 0.87);
+  color: @accent-color;
+  padding: 0 0.4rem;
   background-color: rgba(0, 0, 0, 0.06);
 }
 
 th, td {
   padding: 6px 13px;
-  border-color: #E0E0E0;
+  border-color: @divider-color;
 }
 
 table tr:nth-child(2n) {
@@ -94,6 +94,6 @@ hr {
 }
 
 .with-code-annotation > p > * {
-  border: 0.05rem solid rgba(255, 255, 255, 0.75);
-  background-color: rgba(255, 255, 255, 0.73);
+  color: @dark-theme-text-color;
+  background-color: rgba(84, 110, 122, 0.5);
 }

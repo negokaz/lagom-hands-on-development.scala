@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lagom で学ぶ Reactive Microservices Architecture</title>
+  <title>Scala ではじめるマイクロサービス Lagom でチャットを実装してみよう！</title>
   <meta charset="utf-8">
   <link rel="shortcut icon" href="r/favicon.ico">
   <link rel="stylesheet" type="text/css" href="r/light-theme/light-theme.css" />
@@ -43,7 +43,7 @@ class: middle, center
 
 ## 私は何者？
 
-* 根来 和輝 .small[Negoro Kazuki]
+* 根来 和輝 .whisper[Negoro Kazuki]
 * TIS株式会社 生産技術R＆D室
 * Reactive System に関する技術検証・コンサル
     * Lightbend Reactive Platform
@@ -58,11 +58,15 @@ class: middle, center
 
 * 2014年3月に ThoughtWorks社 の Martin Fowler によって提唱された
 * 小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと
-* システムを復数に分割することによってデリバリスピードや可用性の面においてメリットがある
+* システムを復数に分割することによって デリバリスピードや可用性の面においてメリットがある
+
+.footnote[
+※ 以降は MSA と略記
+]
 
 ---
 
-## マイクロサービスアーキテクチャのトッピックス
+## MSA のトッピックス
 
 * アプリ層の設計
 * インフラ層の設計
@@ -92,7 +96,7 @@ class: middle, center
 
 * Lightbend社が3月にリリースしたMSA向けフレームワーク
 * 提供されている内部APIは Scala/Java
-* コンセプトは **.strong[Reactive] Microservices Architecture**
+* コンセプトは **Reactive** *Microservices Architecture*
     * 大規模なシステムがターゲット
 
 .footnote[
@@ -119,8 +123,8 @@ class: middle, center
 
 * サービス内部で使うAPIは全て**非同期API**
   * スレッドを使いまわしてリソースを節約
-* 外部APIの呼び出しは **CircuitBreaker** がデフォルトで有効
-  * 依存するサービスが応答できなくなっても即応性を維持
+* 外部APIの呼び出しは **Circuit Breaker** がデフォルトで有効
+  * 依存するサービスが応答できなくなっても 即応性を維持
 
 .footnote[
 [Lagom #Lagom design philosophy](http://www.lagomframework.com/documentation/1.3.x/scala/LagomDesignPhilosophy.html)
@@ -232,7 +236,7 @@ Request:
 ```
 
 Response:
-```
+```javascript
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
@@ -299,11 +303,11 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 ## 他の API も定義してみよう
 
-* [x] チャットルームにメッセージを投稿できる
+* .with-checkbox-on[チャットルームにメッセージを投稿できる]
   * `POST /api/messages/:userId`
-* [ ] **投稿されたメッセージをリアルタイムに確認できる**
+* .with-checkbox-off[*投稿されたメッセージをリアルタイムに確認できる*]
   * `GET /api/messagestream` (WebSocket)
-* [ ] **チャットルームに入る前のメッセージを確認できる**
+* .with-checkbox-off[*チャットルームに入る前のメッセージを確認できる*]
   * `GET /api/messages`
 
 ---
@@ -412,7 +416,7 @@ git checkout step2
 
 http://localhost:9000/chat
 
-* [x] コンソールに投稿したメッセージが表示される
+* .with-checkbox-on[コンソールに投稿したメッセージが表示される]
 
 ---
 class: middle, center
@@ -440,7 +444,7 @@ PubSub を使うと簡単に実装できる
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
-* val topic = pubSub.refFor(TopicId[Message])
+val topic = pubSub.refFor(TopicId[Message])
 ```
 ]
 
@@ -462,7 +466,7 @@ override def sendMessage(id: String) = ServiceCall { requestMessage =>
 
 ## メッセージの配信を実装
 
-Topic の `subscriber` を `Future` で包んで返すだけ 
+Topic の `subscriber` を `Future` で包んで返すだけ
 
 ```scala
 override def messageStream() = ServiceCall { _ =>
@@ -497,7 +501,7 @@ git checkout step3
 
 http://localhost:9000/chat
 
-* [x] 投稿したメッセージは他のユーザーからも確認できる
+* .with-checkbox-on[投稿したメッセージは他のユーザーからも確認できる]
 * リロードするとメッセージが消える
 
 ---
@@ -545,7 +549,7 @@ class: middle, center
 
 ## CQRS
 
-* .bold[C]ommand and .bold[Q]uery .bold[R]esponsibility .bold[S]egregation
+* *C*ommand and *Q*uery *R*esponsibility *S*egregation
     コマンドクエリ責務分離
 * コマンド(書き込み)とクエリ(読み込み)を分離する
 * 書き込み側と読み込み側で
@@ -601,7 +605,7 @@ override def behavior = {
 ```scala
 override def behavior = {
   // ...(略)... //
-  
+
   case RoomState(_, _) =>
     Actions()
       .onCommand[PostMessage, Done] {
@@ -709,8 +713,8 @@ git checkout step4
 
 http://localhost:9000/chat
 
-* [x] リロードしても過去のメッセージが確認できる
-* [x] 新しいユーザーも過去のメッセージが確認できる
+* .with-checkbox-on[リロードしても過去のメッセージが確認できる]
+* .with-checkbox-on[新しいユーザーも過去のメッセージが確認できる]
 
 ---
 class: middle, center

@@ -1,16 +1,6 @@
 @import "mixins.less";
 @import "https://raw.githubusercontent.com/gnab/remark/develop/src/remark.less";
 
-.strong {
-  .accent;
-  font-weight: bold;
-}
-
-.bold {
-  .heavy;
-  font-weight: bold;
-}
-
 .small {
 
   *& {
@@ -44,18 +34,20 @@
 }
 
 .with-code-annotation {
-  code {
-    padding-top: 1rem !important;
-  }
+  position: relative;
+
    > p {
-    display: block;
-    text-align: left;
-    width: 100%;
-    height: 0;
+    position: absolute;
+    margin: 0;
     font-size: 0.5rem;
-    margin-bottom: -1rem;
     * {
       padding: 0 0.25rem;
+    }
+  }
+
+  pre {
+     > code .remark-code-line:first-child {
+      margin-top: 0.5rem;
     }
   }
 }
