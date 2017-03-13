@@ -1,0 +1,123 @@
+@import "mixins.less";
+@import "https://raw.githubusercontent.com/gnab/remark/develop/src/remark.less";
+
+.strong {
+  .accent;
+  font-weight: bold;
+}
+
+.bold {
+  .heavy;
+  font-weight: bold;
+}
+
+.small {
+
+  *& {
+    /* for inline */
+    font-size: 70%;
+  }
+}
+
+.smaller {
+
+  *& {
+    /* for inline */
+    font-size: 50%;
+  }
+}
+
+.bigger {
+
+  *& {
+    /* for inline */
+    font-size: 180%;
+  }
+}
+
+.big {
+
+  *& {
+    /* for inline */
+    font-size: 140%;
+  }
+}
+
+.with-code-annotation {
+  code {
+    padding-top: 1rem !important;
+  }
+   > p {
+    display: block;
+    text-align: left;
+    width: 100%;
+    height: 0;
+    font-size: 0.5rem;
+    margin-bottom: -1rem;
+    * {
+      padding: 0 0.25rem;
+    }
+  }
+}
+
+.middle > .glass {
+  padding: 1px 0.25rem;
+}
+
+.with-twitter-icon {
+  .list-style-svg('img/twitter.svg', 1.5rem, bottom);
+  margin-left : 1rem;
+}
+
+.with-github-icon {
+  .list-style-svg('img/github.svg', 1.5rem, bottom);
+  margin-left : 1rem;
+}
+
+.with-checkbox-on {
+  display: block;
+  .list-style-svg('img/checkbox-on.svg', 1rem, middle);
+}
+
+.with-checkbox-off {
+  display: block;
+  .list-style-svg('img/checkbox-off.svg', 1rem, middle);
+}
+
+.with-arrow {
+  display: block;
+  .list-style-svg('img/therefore.svg', 1rem, middle);
+}
+
+.with-cursor {
+  .center-overlay(1.5rem, 1.5rem, url('img/cursor.png'));
+}
+
+.with-bottom-cursor {
+  .right-overlay(1.5rem, 1.5rem, 50%, 0%, url('img/cursor.png'));
+}
+
+.with-array-to-bottom {
+  .left-overlay(3.5rem, 3.5rem, 50%, 80%, url('img/arrow-to-bottom.svg'));
+}
+
+.list-no-marker > * {
+  list-style-type: none;
+  margin-left: -1rem;
+}
+
+.width-loop(100);
+.width-loop(@i) when (@i > 0) {
+  .width-loop((@i - 1));    // next iteration
+  .width-@{i} {
+    .width(1rem * @i);
+  }
+}
+
+.height-loop(100);
+.height-loop(@i) when (@i > 0) {
+  .height-loop((@i - 1));    // next iteration
+  .height-@{i} {
+    .height(1rem * @i);
+  }
+}

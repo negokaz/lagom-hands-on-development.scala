@@ -1,0 +1,108 @@
+.list-style-svg (@url, @size, middle) {
+  .list-style-svg(@url, @size);
+}
+.list-style-svg (@url, @size, bottom) {
+  .list-style-svg(@url, @size, -0.2em);
+}
+.list-style-svg (@url, @size, @bottom-position: (1em - @size - 0.1em), @marker-gap: 0.5em) {
+
+  list-style: none;
+  padding-left: calc(@size + @marker-gap);
+
+  &:before {
+    content: '';
+    display: inline-block;
+    background-size: @size;
+    width: @size;
+    height: @size;
+    background-repeat: no-repeat;
+    background-image: url(@url);
+    background-position: center;
+    position: relative;
+    margin-left: -@size;
+    bottom: @bottom-position;
+    left: -@marker-gap;
+  }
+}
+
+.width(@size) {
+    width:  @size;
+    height: auto;
+
+     > * {
+      width:  @size;
+      height: auto;
+    }
+}
+
+.height(@size) {
+    width:  auto;
+    height: @size;
+
+     > * {
+      width:  auto;
+      height: @size;
+    }
+}
+
+.center-overlay(@width, @height, @image) {
+  .left-overlay(@width, @height, 50%, 50%, @image);
+}
+
+.left-overlay(@width, @height, @position-left, @position-top, @image) {
+  position: relative;
+  display: inline-block;
+  &:after {
+    content: "";
+    z-index: 999;
+    position: absolute;
+    background-image: @image;
+    background-size: @width @height;
+    top: @position-top;
+    left: @position-left;
+    width: @width;
+    height: @height;
+  }
+}
+
+.right-overlay(@width, @height, @position-right, @position-bottom, @image) {
+  position: relative;
+  display: inline-block;
+  &:after {
+    content: "";
+    z-index: 999;
+    position: absolute;
+    background-image: @image;
+    background-size: @width @height;
+    bottom: @position-bottom;
+    right: @position-right;
+    width: @width;
+    height: @height;
+  }
+}
+
+.float-top(@postiion) {
+  position: absolute;
+  top: @postiion;
+
+  > * {
+    padding: 0.25rem 1rem;
+  }
+}
+
+.float-bottom(@position) {
+  position: absolute;
+  bottom: @position;
+
+  > * {
+    padding: 0.25rem 1rem;
+  }
+}
+
+.left(@position) {
+  left: @position;
+}
+
+.right(@position) {
+  right: @position;
+}

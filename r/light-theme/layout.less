@@ -1,0 +1,154 @@
+
+.left-column {
+  width: 49%;
+  float: left;
+}
+
+.right-column {
+  width: 49%;
+  float: right;
+}
+
+.background-cover {
+
+  &.remark-slide-content {
+    background-position: center !important;
+    background-size: cover !important;
+  }
+}
+
+.as-underlay {
+  position: absolute;
+
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+.fit {
+
+  &.remark-slide-content {
+    padding: 0;
+  }
+}
+
+.fit-left {
+
+  &.remark-slide-content {
+    padding: 10px 60px 10px 0;
+  }
+
+  &.remark-slide-content > * {
+    padding: 0 0 0 40px;
+  }
+}
+
+.fit-right {
+
+  &.remark-slide-content {
+    padding: 10px 0 10px 60px;
+  }
+
+  &.remark-slide-content > * {
+    padding: 0 40px 0 0;
+  }
+}
+
+.float {
+  position: absolute;
+
+  > * {
+    padding: 0.25rem 1rem;
+  }
+}
+
+.top-loop(100);
+.top-loop(@i) when (@i > -1) {
+  .top-loop((@i - 1));    // next iteration
+  .top-@{i} {
+    top: (1% * @i);
+  }
+}
+
+.bottom-loop(100);
+.bottom-loop(@i) when (@i > -1) {
+  .bottom-loop((@i - 1));    // next iteration
+  .bottom-@{i} {
+    bottom: (1% * @i);
+  }
+}
+
+.left-loop(100);
+.left-loop(@i) when (@i > -1) {
+  .left-loop((@i - 1));    // next iteration
+  .left-@{i} {
+    left: (1% * @i);
+  }
+}
+
+.right-loop(100);
+.right-loop(@i) when (@i > -1) {
+  .right-loop((@i - 1));    // next iteration
+  .right-@{i} {
+    right: (1% * @i);
+  }
+}
+
+
+.float-top-loop(100);
+.float-top-loop(@i) when (@i > -1) {
+  .float-top-loop((@i - 1));    // next iteration
+  .float-top-@{i} {
+    .float-top(1% * @i);
+  }
+}
+
+.float-bottom-loop(100);
+.float-bottom-loop(@i) when (@i > -1) {
+  .float-bottom-loop((@i - 1));    // next iteration
+  .float-bottom-@{i} {
+    .float-bottom(1% * @i);
+  }
+}
+
+.foreground {
+
+  position: relative;
+  z-index: 999;
+
+  > * {
+    position: absolute;
+    margin-top: 0.4em; // margin の重なってた部分の位置合わせ
+  }
+}
+
+.footnote {
+  width: 85%;
+  position: absolute;
+  bottom: 1.5rem;
+  text-align: right;
+  font-size: 0.6rem;
+
+  p {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+  }
+}
+
+.fill {
+  display: block;
+  object-fit: contain;
+}
+
+.without-margin {
+
+  * {
+    margin: 0;
+  }
+
+  > * {
+    margin: 0;
+  }
+}

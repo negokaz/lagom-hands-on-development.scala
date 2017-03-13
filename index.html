@@ -1,32 +1,798 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Lagom Hands-On-Development</title>
-<meta charset="utf-8">
+  <title>Lagom で学ぶ Reactive Microservices Architecture</title>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="r/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="r/light-theme/light-theme.css" />
 </head>
 <body>
+
 <textarea id="source">
+class: middle, center
 
-class: center, middle
+# Scala ではじめる<br>マイクロサービス
+## Lagom でチャットを実装してみよう！
 
-# Title
+???
+
+Total: 1:25
+
+0:10: 前説・STEP0
+0:15: STEP1: API定義
+0:15: STEP2: メッセージ配信
+0:30: STEP3: 永続化
+0:10: STEP4: CB
+0:05: まとめ
 
 ---
 
-# Agenda
+## 準備
 
-1. Introduction
-2. Deep-dive
-3. ...
+下記 URL の手順に従って準備してください
+
+:TODO:
+
+---
+class: middle, center
+
+# Scala ではじめる<br>マイクロサービス
+## Lagom でチャットを実装してみよう！
 
 ---
 
-# Introduction
+## 私は何者？
+
+* 根来 和輝 .small[Negoro Kazuki]
+* TIS株式会社 生産技術R＆D室
+* Reactive System に関する技術検証・コンサル
+    * Lightbend Reactive Platform
+        * Scala / Akka / Play framework
+
+.with-twitter-icon[[@negokaz](https://twitter.com/negokaz)]
+.with-github-icon[[negokaz](https://github.com/negokaz)]
+
+---
+
+## マイクロサービスアーキテクチャ？
+
+* 2014年3月に ThoughtWorks社 の Martin Fowler によって提唱された
+* 小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと
+* システムを復数に分割することによってデリバリスピードや可用性の面においてメリットがある
+
+---
+
+## マイクロサービスアーキテクチャのトッピックス
+
+* アプリ層の設計
+* インフラ層の設計
+* ドメイン駆動設計
+* (人の)組織
+* システム運用
+* セキュリティ
+* ...etc
+
+---
+
+## 今日やること・やらないこと
+
+* **アプリ層の設計**
+* ~~インフラ層の設計~~
+* ~~ドメイン駆動設計~~
+* ~~(人の)組織~~
+* ~~システム運用~~
+* ~~セキュリティ~~
+* ~~...etc~~
+
+---
+
+## Lagom とは？
+
+.height-3.center[![](r/img/lagom_logo.svg)]
+
+* Lightbend社が3月にリリースしたMSA向けフレームワーク
+* 提供されている内部APIは Scala/Java
+* コンセプトは **.strong[Reactive] Microservices Architecture**
+    * 大規模なシステムがターゲット
+
+.footnote[
+[https://www.lightbend.com/lagom](https://www.lightbend.com/lagom)
+
+[Reactive Microservices Architecture (O’Reilly)](http://www.oreilly.com/programming/free/reactive-microservices-architecture.html)
+]
+
+---
+
+## Lagom が目指すもの
+
+.center[
+<iframe src="https://www.slideshare.net/slideshow/embed_code/key/bpqBuXOj1fENSp?startSlide=29" width="577" height="470" frameborder="1" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+]
+
+.footnote[
+[リアクティブ・アーキテクチャ ～大規模サービスにおける必要性と課題〜](http://www.slideshare.net/okapies/reactive-architecture-20160218-58403521)
+]
+
+---
+
+## Lagom の特徴的な設計ポリシー
+
+* サービス内部で使うAPIは全て**非同期API**
+  * スレッドを使いまわしてリソースを節約
+* 外部APIの呼び出しは **CircuitBreaker** がデフォルトで有効
+  * 依存するサービスが応答できなくなっても即応性を維持
+
+.footnote[
+[Lagom #Lagom design philosophy](http://www.lagomframework.com/documentation/1.3.x/scala/LagomDesignPhilosophy.html)
+
+[Lagom #Polyglot systems with Lagom](http://www.lagomframework.com/documentation/1.3.x/scala/PolyglotSystems.html)
+]
+
+---
+
+## Lagom が備える機能
+
+* クラスタリングで負荷分散
+* 分散型の永続化機構
+  * **Event Sourcing**
+  * **CQRS**
+* PubSub
+
+※ 全てオプション
+
+---
+class: middle, center
+
+### Hands-On STEP 0
+## 今日 Lagom で作るもの
+
+---
+
+## Lagom Chat
+
+Slack のようなチャットアプリケーション
+
+:TODO: スクリーンショット
+
+---
+
+## Lagom Chat のサービス構成
+
+:TODO: サービス構成
+
+---
+
+## プロジェクトの構成
+
+* Message Service
+  * `message-api`
+  * `message-impl`
+* User Service
+  * `user-api`
+  * `user-impl`
+* Web Gateway
+  * `web-gateway`
+
+---
+
+## 実装するもの
+
+Message Service
+
+今はメッセージの投稿も閲覧もできない状態
+
+---
+
+## チャットの要件
+
+* チャットルームにメッセージを投稿できる
+* 投稿されたメッセージをリアルタイムに確認できる
+* チャットルームに入る前のメッセージを確認できる
+
+---
+
+## Message Service の API
+
+* チャットルームにメッセージを投稿できる
+  * `POST /api/messages/:userId`
+* 投稿されたメッセージをリアルタイムに確認できる
+  * `GET /api/messagestream` (WebSocket)
+* チャットルームに入る前のメッセージを確認できる
+  * `GET /api/messages`
+
+---
+
+## アプリを起動
+
+```bash
+sbt runAll
+```
+
+http://localhost:9000
+
+* ホットリローディングで変更が自動的に反映
+
+---
+class: middle, center
+
+### Hands-On STEP 1
+## サービスの API を実装してみよう
+
+---
+
+## メッセージの投稿
+
+`POST /api/messages/:userId`
+
+Request:
+```javascript
+{
+   body: "メッセージ"
+}
+```
+
+Response:
+```
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+---
+
+## メッセージの投稿
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+// ServiceCall を返す抽象メソッド (定義済み)
+def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
+```
+]
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+override def descriptor = {
+  import Service._
+  named("message").withCalls(
+    // URL と メソッドのマッピングを定義
+    pathCall("/api/messages/:userId", sendMessage _)
+  ).withAutoAcl(true)
+}
+```
+]
+
+---
+
+## ServiceCall
+
+```scala
+trait ServiceCall[Request, Response]
+```
+
+* 第一型引数が Request Body
+* 第二型引数が Response Body
+
+を表す。
+
+---
+
+## pathCall
+
+```scala
+def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
+```
+
+* 第一引数に API のパス
+* 第二引数に `ServiceCall` を返すメソッド
+
+を指定する。
+
+`ServiceCall` の型引数によって HTTP のメソッドが自動で決まる
+
+* `ServiceCall[NotUsed, _]` ⇒ `GET`
+* `ServiceCall[_, _]` ⇒ `POST`
+
+`restCall` で定義すれば、任意の HTTP メソッドを指定できる
+
+---
+
+## 他の API も定義してみよう
+
+* [x] チャットルームにメッセージを投稿できる
+  * `POST /api/messages/:userId`
+* [ ] **投稿されたメッセージをリアルタイムに確認できる**
+  * `GET /api/messagestream` (WebSocket)
+* [ ] **チャットルームに入る前のメッセージを確認できる**
+  * `GET /api/messages`
+
+---
+
+### メッセージのストリーム (WebSocket)
+
+`GET  /api/messagestream`
+
+Frames:
+```javascript
+{ body: "わーい！", user: "user1", timestamp: 1488866889258 }
+{ body: "すごーい！", user: "user2", timestamp: 1488866889259 }
+```
+
+---
+
+### メッセージのストリーム (WebSocket)
+
+```scala
+def messageStream(): ServiceCall[NotUsed, Source[Message, NotUsed]]
+```
+
+Response を `Source[_, _]` にすることによって
+WebSocket の API を定義できる
+
+* ストリームデータの **入力** を表す
+* 第一型引数が入力データの型
+* 第二型引数はストリーム終了時に得られる型
+  * 使わないので `NotUsed`
+
+---
+
+### メッセージの一覧を取得
+
+`GET  /api/messages`
+
+Response:
+```javascript
+HTTP/1.1 200 OK
+
+[
+  { body: "わーい！", user: "user1", timestamp: 1488866889258 },
+  { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
+]
+```
+
+---
+
+### メッセージの一覧を取得
+
+```scala
+def messages(): ServiceCall[NotUsed, Seq[Message]]
+```
+
+---
+
+## API 定義の完成形
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+override def descriptor = {
+  import Service._
+  named("message").withCalls(
+    pathCall("/api/messages/:userId", sendMessage _),
+    pathCall("/api/messagestream", messageStream),
+    pathCall("/api/messages", messages)
+  ).withAutoAcl(true)
+}
+```
+]
+
+---
+
+## サービスを実装してみよう
+
+* メッセージが POST されたらコンソールに表示
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+override def sendMessage(id: String) = ServiceCall { requestMessage =>
+  println(s"$requestMessage from $id")
+  Future.successful(Done)
+}
+
+override def messageStream() = ServiceCall { _ =>
+  ???
+}
+```
+]
+
+---
+
+## 間に合わなかった場合
+
+下記のコマンドでブランチを`step2`に切り替えてください
+
+```bash
+git checkout step2
+```
+
+---
+
+## 実装の確認
+
+http://localhost:9000/chat
+
+* [x] コンソールに投稿したメッセージが表示される
+
+---
+class: middle, center
+
+### Hands-On STEP 2
+## メッセージを配信してみよう
+
+---
+
+## メッセージを配信してみよう
+
+投稿されたメッセージをリアルタイムに確認したい
+
+1. メッセージがクライアントから POST される
+2. メッセージを他のクライアントに配信する
+
+PubSub を使うと簡単に実装できる
+
+---
+
+## メッセージの配信を実装
+
+投稿されたメッセージを配信するための Topic を作成
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+* val topic = pubSub.refFor(TopicId[Message])
+```
+]
+
+---
+
+## メッセージの配信を実装
+
+作成した Topic に対してメッセージを `publish`
+
+```scala
+override def sendMessage(id: String) = ServiceCall { requestMessage =>
+* val message = Message(requestMessage.body, id, DateTime.now())
+* topic.publish(message)
+  Future.successful(Done)
+}
+```
+
+---
+
+## メッセージの配信を実装
+
+Topic の `subscriber` を `Future` で包んで返すだけ 
+
+```scala
+override def messageStream() = ServiceCall { _ =>
+* Future.successful(topic.subscriber)
+}
+```
+
+```scala
+def subscriber: Source[T, NotUsed]
+```
+
+---
+
+## PubSub の注意点
+
+この PubSub は同一サービス内でのみ使える。到達保証もされない。
+サービスをまたがる PubSub が必要な場合は Broker Support を使う。
+
+---
+
+## 間に合わなかった場合
+
+下記のコマンドでブランチを`step3`に切り替えてください
+
+```bash
+git checkout step3
+```
+
+---
+
+## 実装の確認
+
+http://localhost:9000/chat
+
+* [x] 投稿したメッセージは他のユーザーからも確認できる
+* リロードするとメッセージが消える
+
+---
+class: middle, center
+
+### Hands-On STEP 3
+## メッセージを永続化する
+
+---
+
+## Lagom における永続化
+
+* 高い可用性とスケーラビリティを実現するため **Event Sourcing** と **CQRS** による永続化のしくみを備えている
+
+---
+
+## Event Sourcing
+
+* システムの中で起きた**イベント**を永続化する
+* イベントは不変(immutable)
+    * キャッシュ、コピー、共有が容易にできる
+        * スケールしやすい
+        * 耐障害性を高められる
+* ロック不要
+    * 高いスループットを実現できる
+
+---
+
+## Event Sourcing
+
+* システムの中で起きた**イベント**を永続化する
+.float-top-30.bigger.with-margin-1[
+![](resources/img/event-sourcing.1.svg)
+]
+
+---
+
+## Event Sourcing
+
+* デメリット
+  * データの集計にコストがかかる
+  * ⇒ CQRSで解決できる
+
+---
+
+## CQRS
+
+* .bold[C]ommand and .bold[Q]uery .bold[R]esponsibility .bold[S]egregation
+    コマンドクエリ責務分離
+* コマンド(書き込み)とクエリ(読み込み)を分離する
+* 書き込み側と読み込み側で
+    * 異なるDB・データ構造が使える
+    * 別々にスケールできるようになる
+    * ⇒ Command-Side にイベントソーシングを使い<br>Query-Side に集計しやすい形で永続化する
+
+---
+
+## CQRS
+
+.center.with-margin-1[
+![](resources/img/es-and-cqrs.svg)
+]
+
+---
+
+## Entity を実装
+
+`behavior` に Entity の状態ごとの振る舞いを定義する
+
+* `onCommand`: コマンドからイベントを作成して永続化
+* `onEvent`: イベントに基いて Entity の状態を更新
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.RoomEntity`
+```scala
+override def behavior = {
+
+  case RoomState(_, countOfMessage) if countOfMessage > 1000 =>
+    // ...(略)... //
+
+  case RoomState(_, _) =>
+    Actions()
+      .onCommand[PostMessage, Done] {
+        case (msg, ctx, state) =>
+*         // TODO
+      }
+      .onEvent {
+        case (_: MessagePosted, state) =>
+*         // TODO
+      }
+}
+```
+]
+
+---
+
+## Entity を実装
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.RoomEntity`
+```scala
+override def behavior = {
+  // ...(略)... //
+  
+  case RoomState(_, _) =>
+    Actions()
+      .onCommand[PostMessage, Done] {
+        case (msg, ctx, state) =>
+*         val msgId = UUID.randomUUID()
+*         ctx.thenPersist(MessagePosted(msgId, state.roomId, msg.message, msg.user, msg.timestamp))(_ => ctx.reply(Done))
+      }
+      .onEvent {
+        case (_: MessagePosted, state) =>
+*         state.incrementsMessages
+      }
+}
+```
+]
+
+---
+
+## EventProcessor を実装
+
+イベントに基いてデータを更新するクエリを作る
+
+* ⇒ `processMessagePosted` で定義済み
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.RoomEventProcessor`
+```scala
+// 定義済み
+private def processMessagePosted(e: EventStreamElement[MessagePosted]): Future[List[BoundStatement]] = {
+  writeMessage.future.map { prepareStatement =>
+    // INSERT INTO message (roomId, id, message, user, timestamp) VALUES (?, ?, ?, ?, ?)
+    val bind = prepareStatement.bind()
+    bind.setString("roomId", e.event.roomId)
+    bind.setUUID("id", e.event.id)
+    bind.setString("message", e.event.message)
+    bind.setString("user", e.event.user)
+    bind.setTimestamp("timestamp", e.event.timestamp.toDate)
+    List(bind)
+  }
+}
+```
+]
+
+---
+
+## EventProcessor を実装
+
+`ReadSideHandler` に `EventHandler` として登録
+
+.with-code-annotation[
+```scala
+override def buildHandler(): ReadSideHandler[RoomEvent] = {
+  val builder = readSide.builder[RoomEvent]("roomoffset")
+  builder.setGlobalPrepare(createTable)
+  builder.setPrepare(_ => prepareWriteUser())
+  // Entity で起きたイベントを Read モデルに反映する
+* builder.setEventHandler[MessagePosted](processMessagePosted)
+  builder.build()
+}
+```
+]
+
+---
+
+## メッセージ一覧を読み取る
+
+Read Side で書き込んだデータを SELECT するだけ
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
+  cassandra
+    .select(
+      """
+        | SELECT message, user, timestamp
+        | FROM message
+        | WHERE roomId = ?
+        | ORDER BY timestamp ASC
+      """.stripMargin, RoomEntity.RoomId)
+    .map { row =>
+      Message(
+        body = row.getString("message"),
+        user = row.getString("user"),
+        timestamp = new DateTime(row.getTimestamp("timestamp"))
+      )
+    }
+    .runFold(Seq.empty[Message])((acc, e) => acc :+ e)
+}
+```
+]
+
+---
+
+## 間に合わなかった場合
+
+下記のコマンドでブランチを`step4`に切り替えてください
+
+```bash
+git checkout step4
+```
+
+---
+
+## 実装の確認
+
+http://localhost:9000/chat
+
+* [x] リロードしても過去のメッセージが確認できる
+* [x] 新しいユーザーも過去のメッセージが確認できる
+
+---
+class: middle, center
+
+### Hands-On STEP 4
+## Circuit Breaker を作動させる
+
+---
+
+## Circuit Breaker?
+
+:TODO: Circuit Breaker の図
+
+Lagom ではデフォルトで全ての外部 API 呼び出しで有効になっている
+
+---
+
+## User Service
+
+下記の API でチャットルームに居るユーザーの一覧が確認できる
+
+`GET` http://localhost:9000/users
+
+---
+
+## User Service を止めてみましょう
+
+.with-code-annotation[
+`user-impl/src/main/resources/application.conf`
+```javascript
+user-service.kill = true
+```
+]
+
+---
+
+## 何が起きたのか？
+
+Web Gateway で Circuit Breaker が作動した
+
+:TODO: WebGateway で Circuit Breaker が作動する説明図
+
+
+---
+
+## まとめ
+
+Lagom には大規模なマイクロサービスアーキテクチャに
+必要な機能が揃っている
+
+* 非同期処理
+* PubSub
+* ES + CQRS
+* サーキットブレーカー
+
+---
+
+## 今回紹介しなかった機能
+
+* クラスタリングで負荷分散
+* サービスを跨いだ PubSub
+
+Lagom の特徴についてもう少し詳しい話は ↓
+https://www.slideshare.net/negokaz/lagom-reactive-microservices-architecture
+
+---
+class: middle, center
+
+## Question?
 
 </textarea>
-<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>
-    var slideshow = remark.create();
-</script>
+
+  <script src="r/remark-0.14.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+  <script>
+    var slideshow = remark.create({
+      highlightStyle: 'monokai',
+      highlightLines: true,
+      highlightSpans: true
+    });
+    // 全てのリンクが別のタブで開くようにする
+    $('a').attr({target: "_blank"});
+  </script>
 </body>
 </html>

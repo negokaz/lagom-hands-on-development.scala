@@ -1,0 +1,13 @@
+{
+  "name": "reactive-meetup-lagom",
+  "version": "1.0.0",
+  "dependencies": {
+    "http-server": "^0.9.0"
+  },
+  "scripts": {
+    "start": "http-server -o -c-1"
+  },
+  "author": "",
+  "devDependencies": {
+  }
+}
