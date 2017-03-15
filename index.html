@@ -5,8 +5,31 @@
   <meta charset="utf-8">
   <link rel="shortcut icon" href="r/favicon.ico">
   <link rel="stylesheet" type="text/css" href="r/light-theme/light-theme.css" />
+  <link rel="stylesheet" type="text/css" href="r/light-theme/preview.css" />
+  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+  <script src="r/remark-0.14.0.min.js"></script>
 </head>
 <body>
+
+<script>
+  $(function() {
+    var slideshow = remark.create({
+      highlightStyle: 'monokai',
+      highlightLines: true,
+      highlightSpans: true,
+      navigation: {
+        scroll: false
+      }
+    });
+    // 全てのリンクが別のタブで開くようにする
+    $('a').attr({target: "_blank"});
+  });
+</script>
+<style>
+  .remark-slide-container {
+    height: 400px
+  }
+</style>
 
 <textarea id="source">
 class: middle, center
@@ -292,7 +315,7 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 を指定する。
 
-`ServiceCall` の型引数によって HTTP のメソッドが自動で決まる
+`ServiceCall` の型引数によってHTTPのメソッドが自動で決まる
 
 * `ServiceCall[NotUsed, _]` ⇒ `GET`
 * `ServiceCall[_, _]` ⇒ `POST`
@@ -786,17 +809,5 @@ class: middle, center
 ## Question?
 
 </textarea>
-
-  <script src="r/remark-0.14.0.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-  <script>
-    var slideshow = remark.create({
-      highlightStyle: 'monokai',
-      highlightLines: true,
-      highlightSpans: true
-    });
-    // 全てのリンクが別のタブで開くようにする
-    $('a').attr({target: "_blank"});
-  </script>
 </body>
 </html>
