@@ -8,12 +8,6 @@
     .remark-slides-area {
       top: 0px;
       left: 0px;
-      height: 100%;
-      /*
-        NOTE: 100% doesn't match @page size width or height
-              681px matching @page size/width does, however
-      */
-      width: 681px;
     }
     .remark-preview-area,
     .remark-notes-area {
@@ -27,7 +21,7 @@
   }
   .remark-slide-container {
     display: block;
-    position: relative;
+    position: static;
     background-color: gray;
     height: 400px;
 
@@ -36,6 +30,7 @@
     }
   }
   .remark-slide-scaler {
+    position: static;
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
     -webkit-transform-origin: initial;
