@@ -71,14 +71,19 @@ a {
 }
 
 code {
-  color: @accent-color;
+  color: @primary-text-color;
   padding: 0 0.4rem;
   background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
 }
 
 th, td {
   padding: 6px 13px;
   border-color: @divider-color;
+}
+
+li > *:first-child {
+  margin-top: 0.4rem;
 }
 
 table tr:nth-child(2n) {

@@ -436,6 +436,12 @@ body:fullscreen {
 @page {
   margin: 0;
 }
+.sup {
+  font-size: 75.5%;
+  vertical-align: top;
+  position: relative;
+  top: -0.1em;
+}
 *.small {
   /* for inline */
   font-size: 70%;
@@ -5113,14 +5119,18 @@ a {
   color: #3f51b5;
 }
 code {
-  color: #ff4081;
+  color: #212121;
   padding: 0 0.4rem;
   background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
 }
 th,
 td {
   padding: 6px 13px;
   border-color: #dbdbdb;
+}
+li > *:first-child {
+  margin-top: 0.4rem;
 }
 table tr:nth-child(2n) {
   background-color: rgba(0, 0, 0, 0.06);

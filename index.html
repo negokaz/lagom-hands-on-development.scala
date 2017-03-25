@@ -5,7 +5,9 @@
   <meta charset="utf-8">
   <link rel="shortcut icon" href="r/favicon.ico">
   <link rel="stylesheet" type="text/css" href="r/light-theme/light-theme.css" />
+  <!--
   <link rel="stylesheet" type="text/css" href="r/light-theme/preview.css" />
+  -->
 </head>
 <body>
 <textarea id="source">
@@ -31,7 +33,10 @@ Total: 1:25
 
 下記 URL の手順に従って準備してください
 
-:TODO:
+1. IntelliJ IDEA を開く
+2. `lagom-hands-on-delelopment.scala` のプロジェクトを開く
+3. ターミナルから `git checkout step1`
+
 
 ---
 class: middle, center
@@ -122,9 +127,9 @@ class: middle, center
 ## Lagom の特徴的な設計ポリシー
 
 * サービス内部で使うAPIは全て**非同期API**
-  * スレッドを使いまわしてリソースを節約
+  .with-arrow[スレッドを使いまわしてリソースを節約]
 * 外部APIの呼び出しは **Circuit Breaker** がデフォルトで有効
-  * 依存するサービスが応答できなくなっても 即応性を維持
+  .with-arrow[依存するサービスが応答できなくなっても 即応性を維持]
 
 .footnote[
 [Lagom #Lagom design philosophy](http://www.lagomframework.com/documentation/1.3.x/scala/LagomDesignPhilosophy.html)
@@ -142,7 +147,7 @@ class: middle, center
   * **CQRS**
 * PubSub
 
-※ 全てオプション
+.with-arrow[これらは全てオプションで要件に応じて取捨選択が可能]
 
 ---
 class: middle, center
@@ -156,21 +161,49 @@ class: middle, center
 
 Slack のようなチャットアプリケーション
 
-:TODO: スクリーンショット
+.center[
+.with-border-frame.height-15[![](r/img/lagom-chat.png)]
+]
+
+---
+
+## Lagom Chat のサービス
+
+* Web Gateway
+.with-arrow[UIを提供]
+* User Service
+.with-arrow[ユーザー登録・参照]
+* Message Service
+.with-arrow[メッセージの投稿・配信]
 
 ---
 
 ## Lagom Chat のサービス構成
 
-:TODO: サービス構成
+
+.as-underlay[
+.height-14[![](r/img/lagom-chat-services.svg)]
+]
+
+--
+
+.as-underlay[
+.height-14[![](r/img/lagom-chat-services.write.svg)]
+]
+
+--
+
+.as-underlay[
+.height-14[![](r/img/lagom-chat-services.read.svg)]
+]
 
 ---
 
 ## プロジェクトの構成
 
 * Message Service
-  * `message-api`
-  * `message-impl`
+  * `message-api` .whisper[(*-api: インターフェイス)]
+  * `message-impl` .whisper[(*-impl: 具体的な実装)]
 * User Service
   * `user-api`
   * `user-impl`
@@ -179,48 +212,87 @@ Slack のようなチャットアプリケーション
 
 ---
 
-## 実装するもの
+## 進捗状況
 
-Message Service
-
-今はメッセージの投稿も閲覧もできない状態
-
----
-
-## チャットの要件
-
-* チャットルームにメッセージを投稿できる
-* 投稿されたメッセージをリアルタイムに確認できる
-* チャットルームに入る前のメッセージを確認できる
+* .with-checkbox-on[Web Gateway]
+* .with-checkbox-on[User Service]
+* .with-checkbox-off[*Message Service*]
+  * 一部は既に実装済み
+  
+.with-arrow[メッセージの投稿と閲覧ができない状態]
 
 ---
 
 ## Message Service の API
 
+HTTP の API を提供するとしたら？
+
 * チャットルームにメッセージを投稿できる
-  * `POST /api/messages/:userId`
+.with-arrow[`Method?` `Path?`]
 * 投稿されたメッセージをリアルタイムに確認できる
-  * `GET /api/messagestream` (WebSocket)
+.with-arrow[`Method?` `Path?`]
 * チャットルームに入る前のメッセージを確認できる
-  * `GET /api/messages`
+.with-arrow[`Method?` `Path?`]
 
 ---
 
-## アプリを起動
+## Message Service の API
 
-```bash
-sbt runAll
-```
+HTTP の API を提供するとしたら？
 
-http://localhost:9000
-
-* ホットリローディングで変更が自動的に反映
+* チャットルームにメッセージを投稿できる
+.with-arrow[`POST` `/api/messages/:userId`]
+* 投稿されたメッセージをリアルタイムに確認できる
+.with-arrow[`GET` `/api/messagestream` .whisper[(WebSocket)]]
+* チャットルームに入る前のメッセージを確認できる
+.with-arrow[`GET` `/api/messages`]
 
 ---
 class: middle, center
 
 ### Hands-On STEP 1
 ## サービスの API を実装してみよう
+
+---
+
+## アプリを起動
+
+ターミナルからプロジェクト直下で`sbt runAll`を実行
+
+.with-code-annotation[
+`Terminal`
+```bash
+$ sbt runAll
+
+~~~ ↓ (下記のログが表示されれば 起動完了) ↓ ~~~
+
+[info] (Services started, press enter to stop and go back to the console...)
+```
+]
+
+起動後、ブラウザで下記にアクセス
+
+http://localhost:9000
+
+※ ソースの変更は自動反映されるため変更後の再起動は不要
+
+---
+
+## API の実装
+
+1. Serivce の Descriptor をトレイトで定義
+2. 定義したトレイトをミックスインして具象クラスを実装
+
+---
+
+## Message Service の API
+
+* .with-checkbox-off[チャットルームにメッセージを投稿できる]
+  * `POST /api/messages/:userId`
+* .with-checkbox-off[投稿されたメッセージをリアルタイムに確認できる]
+  * `GET /api/messagestream` .whisper[(WebSocket)]
+* .with-checkbox-off[チャットルームに入る前のメッセージを確認できる]
+  * `GET /api/messages`
 
 ---
 
@@ -243,7 +315,7 @@ Content-Length: 0
 
 ---
 
-## メッセージの投稿
+## Message Service の Descriptor を定義
 
 .with-code-annotation[
 `com.example.lagomchat.message.api.MessageService`
@@ -281,6 +353,30 @@ trait ServiceCall[Request, Response]
 
 ---
 
+## Request Body
+
+JSON の Request Body が case class にマッピングされる
+
+.with-array-to-bottom[
+.with-code-annotation[
+`JSON`
+```javascript
+{
+   body: "メッセージ"
+}
+```
+]
+]
+<div style="height:1rem"></div>
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
+```
+]
+
+---
+
 ## pathCall
 
 ```scala
@@ -292,12 +388,22 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 を指定する。
 
-`ServiceCall` の型引数によってHTTPのメソッドが自動で決まる
+---
 
-* `ServiceCall[NotUsed, _]` ⇒ `GET`
-* `ServiceCall[_, _]` ⇒ `POST`
+## pathCall
 
-`restCall` で定義すれば、任意の HTTP メソッドを指定できる
+`ServiceCall` の型引数によってHTTPメソッドが決まる
+
+| 型宣言 | HTTPメソッド |
+|-------|-------------|
+|`ServiceCall[NotUsed, _]`|`GET`|
+|`ServiceCall[_, _]`|`POST`|
+
+.footnote[
+任意のHTTPメソッドを指定できる`restCall`という APIもある
+
+[Lagom - Service descriptors #REST identifiers](https://www.lagomframework.com/documentation/1.3.x/scala/ServiceDescriptors.html#REST-identifiers)
+]
 
 ---
 
@@ -306,7 +412,7 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 * .with-checkbox-on[チャットルームにメッセージを投稿できる]
   * `POST /api/messages/:userId`
 * .with-checkbox-off[*投稿されたメッセージをリアルタイムに確認できる*]
-  * `GET /api/messagestream` (WebSocket)
+  * `GET /api/messagestream` .whisper[(WebSocket)]
 * .with-checkbox-off[*チャットルームに入る前のメッセージを確認できる*]
   * `GET /api/messages`
 
@@ -326,9 +432,12 @@ Frames:
 
 ### メッセージのストリーム (WebSocket)
 
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
 ```scala
 def messageStream(): ServiceCall[NotUsed, Source[Message, NotUsed]]
 ```
+]
 
 Response を `Source[_, _]` にすることによって
 WebSocket の API を定義できる
@@ -353,18 +462,20 @@ HTTP/1.1 200 OK
   { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
 ]
 ```
+-------
 
----
-
-### メッセージの一覧を取得
-
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
 ```scala
 def messages(): ServiceCall[NotUsed, Seq[Message]]
 ```
+]
 
 ---
 
-## API 定義の完成形
+## Service Descriptor の完成形
+
+下記のようになっていれば、完成です
 
 .with-code-annotation[
 `com.example.lagomchat.message.api.MessageService`
@@ -382,9 +493,7 @@ override def descriptor = {
 
 ---
 
-## サービスを実装してみよう
-
-* メッセージが POST されたらコンソールに表示
+## Message Service の具象クラスを実装
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
@@ -400,23 +509,62 @@ override def messageStream() = ServiceCall { _ =>
 ```
 ]
 
+* requestMessage: <br>JSON の値がマッピングされた case class .small[⇒ [P29](#29)]
+* メッセージが POST されたらターミナルに表示
+
 ---
 
 ## 間に合わなかった場合
 
 下記のコマンドでブランチを`step2`に切り替えてください
 
+.with-code-annotation[
+`Terminal`
 ```bash
 git checkout step2
 ```
+]
 
 ---
 
 ## 実装の確認
 
+Web Gateway には既に Message Service を呼び出す
+機能が実装されている
+
 http://localhost:9000/chat
 
-* .with-checkbox-on[コンソールに投稿したメッセージが表示される]
+* .with-checkbox-on[*ターミナルに*投稿したメッセージが表示される]
+
+.with-code-annotation[
+`Terminal`
+```bash
+RequestMessage(わーい！) from user1
+RequestMessage(すごーい！) from user1
+```
+]
+
+---
+
+## 参考
+
+.with-code-annotation[
+`controllers.ChatController`
+```scala
+def receiveMessage = Authenticated.async { implicit request =>
+  request.body.asJson.flatMap(_.validate[RequestMessage].asOpt).map { msg =>
+*  messageService
+*     .sendMessage(request.user)
+*     .invoke(msg)
+      .map(_ => NoContent)
+  }.getOrElse(Future.successful(BadRequest))
+}
+```
+]
+
+`ServiceCall#invoke()` をコールしてサービスを実行する
+
+.with-arrow[Message Service に対してHTTPリクエストが発行される]
 
 ---
 class: middle, center
@@ -428,12 +576,12 @@ class: middle, center
 
 ## メッセージを配信してみよう
 
-投稿されたメッセージをリアルタイムに確認したい
+他のユーザーが投稿したメッセージを リアルタイムに確認したい
 
 1. メッセージがクライアントから POST される
 2. メッセージを他のクライアントに配信する
 
-PubSub を使うと簡単に実装できる
+.with-arrow[PubSub を使うと簡単に実装できる]
 
 ---
 
@@ -454,6 +602,8 @@ val topic = pubSub.refFor(TopicId[Message])
 
 作成した Topic に対してメッセージを `publish`
 
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 override def sendMessage(id: String) = ServiceCall { requestMessage =>
 * val message = Message(requestMessage.body, id, DateTime.now())
@@ -461,6 +611,7 @@ override def sendMessage(id: String) = ServiceCall { requestMessage =>
   Future.successful(Done)
 }
 ```
+]
 
 ---
 
@@ -468,22 +619,32 @@ override def sendMessage(id: String) = ServiceCall { requestMessage =>
 
 Topic の `subscriber` を `Future` で包んで返すだけ
 
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 override def messageStream() = ServiceCall { _ =>
 * Future.successful(topic.subscriber)
 }
 ```
+]
 
+`subscriber` のシグネチャ:
 ```scala
-def subscriber: Source[T, NotUsed]
+def subscriber: Source[T, NotUsed] // T は Message になる
 ```
 
 ---
 
-## PubSub の注意点
+## PubSub の制約
 
-この PubSub は同一サービス内でのみ使える。到達保証もされない。
-サービスをまたがる PubSub が必要な場合は Broker Support を使う。
+* 到達保証はされない .whisper.sup[※1]
+* 同一サービス内でのみ使える
+* 上記が必要な場合は [Message Broker API](https://www.lagomframework.com/documentation/1.3.x/scala/MessageBroker.html) を使う
+
+.footnote[
+※1 将来のリリースで解消される予定:
+[Lagom - Publish-Subscribe #Limitations](https://www.lagomframework.com/documentation/1.3.x/scala/PubSub.html#Limitations)
+]
 
 ---
 
@@ -491,9 +652,12 @@ def subscriber: Source[T, NotUsed]
 
 下記のコマンドでブランチを`step3`に切り替えてください
 
+.with-code-annotation[
+`Terminal`
 ```bash
 git checkout step3
 ```
+]
 
 ---
 
@@ -533,8 +697,9 @@ class: middle, center
 ## Event Sourcing
 
 * システムの中で起きた**イベント**を永続化する
-.float-top-30.bigger.with-margin-1[
-![](resources/img/event-sourcing.1.svg)
+
+.center[
+.height-13[![](r/img/event-sourcing.4.svg)]
 ]
 
 ---
@@ -543,7 +708,7 @@ class: middle, center
 
 * デメリット
   * データの集計にコストがかかる
-  * ⇒ CQRSで解決できる
+  .with-arrow[CQRSで解決できる]
 
 ---
 
@@ -561,8 +726,8 @@ class: middle, center
 
 ## CQRS
 
-.center.with-margin-1[
-![](resources/img/es-and-cqrs.svg)
+.center[
+![](r/img/es-and-cqrs.svg)
 ]
 
 ---
@@ -578,10 +743,7 @@ class: middle, center
 `com.example.lagomchat.message.impl.RoomEntity`
 ```scala
 override def behavior = {
-
-  case RoomState(_, countOfMessage) if countOfMessage > 1000 =>
     // ...(略)... //
-
   case RoomState(_, _) =>
     Actions()
       .onCommand[PostMessage, Done] {
@@ -627,7 +789,7 @@ override def behavior = {
 
 イベントに基いてデータを更新するクエリを作る
 
-* ⇒ `processMessagePosted` で定義済み
+.with-arrow[`processMessagePosted` として定義済 ↓]
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.RoomEventProcessor`
@@ -655,6 +817,7 @@ private def processMessagePosted(e: EventStreamElement[MessagePosted]): Future[L
 `ReadSideHandler` に `EventHandler` として登録
 
 .with-code-annotation[
+`com.example.lagomchat.message.impl.RoomEventProcessor`
 ```scala
 override def buildHandler(): ReadSideHandler[RoomEvent] = {
   val builder = readSide.builder[RoomEvent]("roomoffset")
@@ -671,7 +834,7 @@ override def buildHandler(): ReadSideHandler[RoomEvent] = {
 
 ## メッセージ一覧を読み取る
 
-Read Side で書き込んだデータを SELECT するだけ
+EventProcessor で書き込んだデータを SELECT するだけ
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
@@ -703,9 +866,12 @@ override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
 
 下記のコマンドでブランチを`step4`に切り替えてください
 
+.with-code-annotation[
+`Terminal`
 ```bash
 git checkout step4
 ```
+]
 
 ---
 
@@ -726,9 +892,15 @@ class: middle, center
 
 ## Circuit Breaker?
 
-:TODO: Circuit Breaker の図
+* 一定回数失敗するとAPIコールを遮断 (Open)
+* 一定時間でAPIコールできる状態に (Half-Open)
+* APIコールが成功すれば元に戻る (Close)
 
-Lagom ではデフォルトで全ての外部 API 呼び出しで有効になっている
+.center[
+![](r/img/cb-open-close.svg)
+]
+
+Lagom では API コールはデフォルトで Circuit Breaker を経由する
 
 ---
 
@@ -755,7 +927,9 @@ user-service.kill = true
 
 Web Gateway で Circuit Breaker が作動した
 
-:TODO: WebGateway で Circuit Breaker が作動する説明図
+.center[
+.height-14[![](r/img/circuit-break.svg)]
+]
 
 
 ---
@@ -768,7 +942,7 @@ Lagom には大規模なマイクロサービスアーキテクチャに
 * 非同期処理
 * PubSub
 * ES + CQRS
-* サーキットブレーカー
+* Circuit Breaker
 
 ---
 
