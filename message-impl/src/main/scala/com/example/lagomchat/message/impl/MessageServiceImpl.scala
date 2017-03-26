@@ -23,6 +23,8 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
 
   // TODO: メッセージを配信するための Topic を作成
 
+  // TODO: Entity の参照を取得
+
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     // TODO: メッセージを PubSub に publish する
     // TODO: メッセージを Entity に送る
