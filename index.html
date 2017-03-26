@@ -168,7 +168,7 @@ class: middle, center
 
 ---
 
-## Lagom が提供する機能
+## Lagom が提供する機能でできること
 
 * クラスタリングで分散処理
   * **Cluster Sharding**
@@ -178,7 +178,7 @@ class: middle, center
 * 疎結合なコンポーネント間通信
   * **Pub-Sub**
 
-.with-arrow[これらは全てオプションで要件に応じて取捨選択が可能]
+.with-arrow[これらは全てオプション。要件に応じて取捨選択が可能]
 
 ---
 class: middle, center
@@ -201,7 +201,7 @@ Slack のようなチャットアプリケーション
 ## Lagom Chat のサービス
 
 * Web Gateway
-.with-arrow[UIを提供]
+.with-arrow[ユーザー認証・UIを提供]
 * User Service
 .with-arrow[ユーザー登録・参照]
 * Message Service
@@ -248,7 +248,7 @@ Slack のようなチャットアプリケーション
 * .with-checkbox-on[Web Gateway]
 * .with-checkbox-on[User Service]
 * .with-checkbox-off[*Message Service*]
-  * 一部は既に実装済み
+  * 重要な部分以外は既に実装済み
   
 .with-arrow[メッセージの投稿と閲覧ができない状態]
 
@@ -307,6 +307,8 @@ http://localhost:9000
 
 ## Message Service の API
 
+下記の API を `MessageService` トレイトに実装します
+
 * .with-checkbox-off[チャットルームにメッセージを投稿できる]
   * `POST` `/api/messages/:userId`
 * .with-checkbox-off[投稿されたメッセージをリアルタイムに確認できる]
@@ -351,17 +353,22 @@ def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
 override def descriptor = {
   import Service._
   named("message").withCalls(
-    // URL と メソッドのマッピングを定義
+    // TODO: パスとメソッドのマッピングを定義
     pathCall("/api/messages/:userId", sendMessage _)
   ).withAutoAcl(true)
 }
 ```
 ]
 
+.footnote[
+IntelliJ の `Navigate > Class...` でクラスの名前を指定してジャンプできます
+]
+
 ---
 
 ## ServiceCall
 
+シグネチャ:
 ```scala
 trait ServiceCall[Request, Response]
 ```
@@ -372,6 +379,7 @@ trait ServiceCall[Request, Response]
 を表す。
 
 ---
+name: json_mapping
 
 ## Request Body
 
@@ -399,6 +407,7 @@ case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
 
 ## pathCall
 
+シグネチャ:
 ```scala
 def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
 ```
@@ -407,6 +416,10 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 * 第二引数に `ServiceCall` を返すメソッド
 
 を指定する。
+
+.footnote[
+ここでの第二引数は `sendMessage`
+]
 
 ---
 
@@ -437,25 +450,28 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
   * `GET` `/api/messages`
 
 .footnote[
-`withCalls` にカンマ区切りで復数定義できます
+`withCalls` にカンマ区切りで復数定義できる
 ]
 
 ---
 name: def_message_stream
 
-### メッセージのストリーム (WebSocket)
+## メッセージのストリーム .small[(WebSocket)]
 
 `GET` `/api/messagestream`
 
 Frames:
+.with-code-annotation[
+`JSON`
 ```javascript
 { body: "わーい！", user: "user1", timestamp: 1488866889258 }
 { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
 ```
+]
 
 ---
 
-### メッセージのストリーム (WebSocket)
+## メッセージのストリーム .small[(WebSocket)]
 
 .with-code-annotation[
 `com.example.lagomchat.message.api.MessageService`
@@ -508,6 +524,7 @@ def messages(): ServiceCall[NotUsed, Seq[Message]]
 override def descriptor = {
   import Service._
   named("message").withCalls(
+    // パスとメソッドのマッピングを定義
     pathCall("/api/messages/:userId", sendMessage _),
     pathCall("/api/messagestream", messageStream),
     pathCall("/api/messages", messages)
@@ -524,6 +541,8 @@ override def descriptor = {
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 override def sendMessage(id: String) = ServiceCall { requestMessage =>
+  // TODO: メッセージを PubSub に publish する
+  // TODO: メッセージを Entity に送る
   println(s"$requestMessage from $id")
   Future.successful(Done)
 }
@@ -534,7 +553,7 @@ override def messageStream() = ServiceCall { _ =>
 ```
 ]
 
-* requestMessage: <br>JSON の値がマッピングされた case class .small[⇒ [P29](#29)]
+* requestMessage: <br>JSON の値がマッピングされた case class .small[([参照](#json_mapping))]
 * メッセージが POST されたらターミナルに表示
 
 ---
@@ -571,7 +590,7 @@ RequestMessage(すごーい！) from user1
 
 ---
 
-## 参考
+## Web Gateway 上の実装 .small[(参考)]
 
 .with-code-annotation[
 `controllers.ChatController`
@@ -617,6 +636,7 @@ class: middle, center
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
+// TODO: メッセージを配信するための Topic を作成
 val topic = pubSub.refFor(TopicId[Message])
 ```
 ]
@@ -632,7 +652,10 @@ val topic = pubSub.refFor(TopicId[Message])
 ```scala
 override def sendMessage(id: String) = ServiceCall { requestMessage =>
 * val message = Message(requestMessage.body, id, DateTime.now())
+  // TODO: メッセージを PubSub に publish する
 * topic.publish(message)
+  // TODO: メッセージを Entity に送る
+  println(s"$requestMessage from $userId")
   Future.successful(Done)
 }
 ```
@@ -648,6 +671,7 @@ Topic の `subscriber` を `Future` で包んで返すだけ
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 override def messageStream() = ServiceCall { _ =>
+  // TODO: PubSub で subscribe したメッセージを流す
 * Future.successful(topic.subscriber)
 }
 ```
@@ -655,7 +679,7 @@ override def messageStream() = ServiceCall { _ =>
 
 `subscriber` のシグネチャ:
 ```scala
-def subscriber: Source[T, NotUsed] // T は Message になる
+def subscriber: Source[T, NotUsed] // T: ここでは Message
 ```
 
 .footnote[
@@ -695,6 +719,7 @@ git checkout step3
 http://localhost:9000/chat
 
 * .with-checkbox-on[投稿したメッセージは他のユーザーからも確認できる]
+  * シークレットウィンドウから他のユーザーでログイン
 * リロードするとメッセージが消える
 
 ---
@@ -798,11 +823,11 @@ override def behavior = {
     Actions()
       .onCommand[PostMessage, Done] {
         case (msg, ctx, state) =>
-*         // TODO
+*         ??? // TODO: MessagePosted を永続化する
       }
       .onEvent {
         case (_: MessagePosted, state) =>
-*         // TODO
+*         ??? // TODO: state の countOfMessage をインクリメントする
       }
 }
 ```
@@ -817,16 +842,17 @@ override def behavior = {
 ```scala
 override def behavior = {
   // ...(略)... //
-
   case RoomState(_, _) =>
     Actions()
       .onCommand[PostMessage, Done] {
         case (msg, ctx, state) =>
+          // MessagePosted を永続化する
 *         val msgId = UUID.randomUUID()
 *         ctx.thenPersist(MessagePosted(msgId, state.roomId, msg.message, msg.user, msg.timestamp))(_ => ctx.reply(Done))
       }
       .onEvent {
         case (_: MessagePosted, state) =>
+          // state の countOfMessage をインクリメントする
 *         state.incrementsMessages
       }
 }
@@ -912,6 +938,32 @@ override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
 
 ---
 
+## Entity にコマンドを送る
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+// TODO: Entity の参照を取得
+*val entity = registry.refFor[RoomEntity](RoomEntity.RoomId)
+
+override def sendMessage(userId: String) = ServiceCall { requestMessage =>
+  val message = Message(requestMessage.body, userId, DateTime.now())
+* // TODO: メッセージを Entity に送る
+* entity.ask(PostMessage(message.body, message.user, message.timestamp)).map { _ =>
+*   // メッセージを PubSub に publish する
+*   topic.publish(message)
+*   Done
+  }
+}
+```
+]
+
+* `refFor` で Entity への参照を取得 .small[(Entity の ID は固定値)]
+* `ask` を使って `PostMessage` を送信
+* Entity から応答があったら、メッセージを `publish`
+
+---
+
 ## 間に合わなかった場合
 
 下記のコマンドでブランチを`step4`に切り替えてください
@@ -961,6 +1013,13 @@ Lagom では全ての API コールで Circuit Breaker が有効
 
 * `GET` http://localhost:9000/users
 
+.with-code-annotation[
+`JSON`
+```javascript
+[{"name":"user1"},{"name":"user2"}]
+```
+]
+
 ---
 
 ## User Service を止めてみましょう
@@ -974,16 +1033,25 @@ user-service.kill = true
 ```
 ]
 
+何度か API を呼び出す
+
+.with-arrow[http://localhost:9000/users]
+
 ---
 
 ## User Serivce が停止
 
-:TODO: エラー画面
+エラーの応答がすぐに返ってくるようになる
+
+.center[
+.width-26[![](r/img/circuit-break-error.png)]
+]
 
 ---
 
 ## 何が起きたのか？
 
+User Serivce の API が何度もタイムアウトになったため<br>
 Web Gateway で Circuit Breaker が作動した
 
 .center[
@@ -994,9 +1062,10 @@ Web Gateway で Circuit Breaker が作動した
 
 ## 障害から復旧させてみる
 
-1. `user-service.kill` を `false` に設定 (障害から復旧)
-2. 約 15 秒経過
+1. `user-service.kill` を `false` に設定 .small[(障害から復旧)]
+2. 約 15 秒経過 .small[(Circuit Breaker が Half-Open になる)]
 3. 再びユーザー一覧が取得できるようになる
+.with-arrow[http://localhost:9000/users]
 
 ---
 
