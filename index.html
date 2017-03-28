@@ -35,10 +35,28 @@
     }
   }
 </style>
+<style>
+  #history_back {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    font-size: 0.6rem;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.50);
+    border: 0.05rem solid rgba(255, 255, 255, 0.80);
+    padding: 0 0.5rem 0 0.1rem;
+  }
+  @media print {
+    #history_back {
+      display: none;
+    }
+  }
+</style>
 <label for="enable-sync" class="subscribe-control remote-controller">
   <input type="checkbox" id="enable-sync" class="subscribe-control" checked />
   <span>講演者と同じページを見る</span>
 </label>
+<a id="history_back" href="#">↩ 元のページ</a>
 <textarea id="source">
 class: middle, center
 
@@ -1186,6 +1204,24 @@ $(function() {
     
   // 全てのリンクが別のタブで開くようにする (アンカーリンクは省く)
   $('a:not(a[href^=\\#])').attr({target: "_blank"});
+
+  // ページ内参照は戻れるようにする
+  $('a[href^=\\#]:not(#history_back)').addClass("history_backable");
+  var $historyBackTrigger = $("#history_back");
+  $historyBackTrigger.hide();
+  var backableSize = 0;
+  $(".history_backable").on('click', function() {
+    backableSize += 1;
+    $historyBackTrigger.show();
+  });
+  $historyBackTrigger.on('click', function(e) {
+    e.preventDefault();
+    history.back();
+    backableSize -= 1;
+    if (backableSize <= 0) {
+      $historyBackTrigger.hide();
+    }
+  });
 });
 </script>
 
