@@ -1112,6 +1112,24 @@ class: middle, center
     }
   });
 
+  // ダッシュボード上で開かれているか？
+  var isInDashboard = (window.location.search && window.location.search.indexOf("in-dashboard=true") > -1);
+
+  // ←・→ 以外を無効化
+  if (isInDashboard) {
+    slideshow.pause();
+    $(window).keydown(function(e) {
+      switch (e.keyCode) {
+        case 37: // Left
+          slideshow.gotoPreviousSlide();
+          break;
+        case 39: // Right
+          slideshow.gotoNextSlide();
+          break;
+      }
+    });
+  }
+
 $(function() {
 
   var remote = remark.remote(slideshow, "wss://stark-dusk-4378.herokuapp.com/");
