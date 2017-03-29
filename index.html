@@ -403,7 +403,7 @@ override def descriptor = {
 ]
 
 .footnote[
-IntelliJ の `Navigate > Class...` でクラスの名前を指定してジャンプできます
+IntelliJ の `Navigate > Class... (Ctrl + N)` でクラスの名前を指定してジャンプできます
 ]
 
 ???
@@ -1311,10 +1311,14 @@ $(function() {
     }
   });
 
+  openInMac = (navigator.platform && navigator.platform == 'MacPPC');
+
   $('.with-code-annotation > p > code').addClass('copyable');
   $('.copyable').each(function() {
     var text = $(this).text();
-    $(this).attr('data-clipboard-text', text);
+    $(this)
+      .attr('title', 'ショートカットキー: ' + (openInMac ? '⌘ + N' : 'Ctrl + N'))
+      .attr('data-clipboard-text', text);
   });
   new Clipboard('.copyable');
 });
