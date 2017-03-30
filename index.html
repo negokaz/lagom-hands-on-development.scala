@@ -91,7 +91,11 @@ Total: 1:25
 1. ダッシュボードを開く: http://bit.ly/lagom-scala (Chrome 推奨)
 2. IntelliJ IDEA を開く
 3. `lagom-hands-on-delelopment.scala` のプロジェクトを開く
-4. ターミナルから `git checkout step1`
+4. ターミナルで下記を実行
+```bash
+git fetch origin
+git checkout step1
+```
 
 
 ---
@@ -230,7 +234,7 @@ class: middle, center
 Slack のようなチャットアプリケーション
 
 .center[
-.with-border-frame.height-15[![](r/img/lagom-chat.png)]
+.with-border-frame.height-14[![](r/img/lagom-chat.png)]
 ]
 
 ---
@@ -894,6 +898,7 @@ class: middle, center
 
 * `onCommand`: コマンドからイベントを作成して永続化
 * `onEvent`: イベントに基いて Entity の状態を更新
+.with-arrow[ここでは簡単にメッセージ数をカウント]
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.RoomEntity`
