@@ -7,12 +7,12 @@ class: middle, center
 
 Total: 1:25
 
-0:10: 前説・STEP0
-0:15: STEP1: API定義
-0:15: STEP2: メッセージ配信
-0:30: STEP3: 永続化
-0:10: STEP4: CB
-0:05: まとめ
+* 0:10: 前説・STEP0
+* 0:15: STEP1: API定義
+* 0:15: STEP2: メッセージ配信
+* 0:30: STEP3: 永続化
+* 0:10: STEP4: CB
+* 0:05: まとめ・質問
 
 ---
 
@@ -20,10 +20,14 @@ Total: 1:25
 
 下記 URL の手順に従って準備してください
 
-1. ダッシュボードを開く: http://bit.ly/start-lagom
+1. ダッシュボードを開く: http://bit.ly/lagom-scala (Chrome 推奨)
 2. IntelliJ IDEA を開く
 3. `lagom-hands-on-delelopment.scala` のプロジェクトを開く
-4. ターミナルから `git checkout step1`
+4. ターミナルで下記を実行
+```bash
+git fetch origin
+git checkout step1
+```
 
 
 ---
@@ -53,9 +57,7 @@ class: middle, center
 * 小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと
 * システムを復数に分割することによって デリバリスピードや可用性の面においてメリットがある
 
-.footnote[
-※ 以降は MSA と略記
-]
+.whisper[※ 以降は MSA と略記]
 
 ---
 
@@ -127,11 +129,23 @@ class: middle, center
 
 ---
 
+## 詳しくはこちら
+
+.center[
+<iframe src="https://www.slideshare.net/slideshow/embed_code/key/xcxq7ErCS7Rg5" width="577" height="470" frameborder="1" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+]
+
+.footnote[
+[Lagom で学ぶ Reactive Microservices Architecture](https://www.slideshare.net/negokaz/lagom-reactive-microservices-architecture)
+]
+
+---
+
 ## Lagom が提供する機能でできること
 
 * クラスタリングで分散処理
   * **Cluster Sharding**
-* スケーラブルな永続化機構
+* スケーラブルな永続化
   * **Event Sourcing**
   * **CQRS**
 * 疎結合なコンポーネント間通信
@@ -152,7 +166,7 @@ class: middle, center
 Slack のようなチャットアプリケーション
 
 .center[
-.with-border-frame.height-15[![](r/img/lagom-chat.png)]
+.with-border-frame.height-14[![](r/img/lagom-chat.png)]
 ]
 
 ---
@@ -230,6 +244,10 @@ class: middle, center
 ### Hands-On STEP 1
 ## サービスの API を実装してみよう
 
+???
+
+【0:10: 前説・STEP0】
+
 ---
 
 ## アプリを起動
@@ -266,7 +284,7 @@ http://localhost:9000
 
 ## Message Service の API
 
-下記の API を `MessageService` トレイトに実装します
+下記の API を `MessageService` トレイトに定義します
 
 * .with-checkbox-off[チャットルームにメッセージを投稿できる]
   * `POST` `/api/messages/:userId`
@@ -295,6 +313,7 @@ Content-Length: 0
 ```
 
 ---
+name: first_descriptor
 
 ## Message Service の Descriptor を定義
 
@@ -320,12 +339,18 @@ override def descriptor = {
 ]
 
 .footnote[
-IntelliJ の `Navigate > Class...` でクラスの名前を指定してジャンプできます
+IntelliJ の `Navigate > Class... (Ctrl + N)` でクラスの名前を指定してジャンプできます
 ]
+
+???
+
+★Hands-On★
 
 ---
 
 ## ServiceCall
+
+サービスの API コールを抽象化したクラス
 
 シグネチャ:
 ```scala
@@ -343,6 +368,8 @@ name: json_mapping
 ## Request Body
 
 JSON の Request Body が case class にマッピングされる
+
+`ServiceCall[RequestMessage, _]` と宣言すると…
 
 .with-array-to-bottom[
 .with-code-annotation[
@@ -366,6 +393,8 @@ case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
 
 ## pathCall
 
+API のパスをメソッドにマッピングする
+
 シグネチャ:
 ```scala
 def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
@@ -377,7 +406,7 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 を指定する。
 
 .footnote[
-ここでの第二引数は `sendMessage`
+[ここ](#first_descriptor)での第二引数は `sendMessage`
 ]
 
 ---
@@ -412,8 +441,11 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 `withCalls` にカンマ区切りで復数定義できる
 ]
 
+???
+
+★Hands-On★
+
 ---
-name: def_message_stream
 
 ## メッセージのストリーム .small[(WebSocket)]
 
@@ -429,6 +461,7 @@ Frames:
 ]
 
 ---
+name: def_message_stream
 
 ## メッセージのストリーム .small[(WebSocket)]
 
@@ -502,8 +535,8 @@ override def descriptor = {
 override def sendMessage(id: String) = ServiceCall { requestMessage =>
   // TODO: メッセージを PubSub に publish する
   // TODO: メッセージを Entity に送る
-  println(s"$requestMessage from $id")
-  Future.successful(Done)
+* println(s"$requestMessage from $id")
+* Future.successful(Done)
 }
 
 override def messageStream() = ServiceCall { _ =>
@@ -514,6 +547,10 @@ override def messageStream() = ServiceCall { _ =>
 
 * requestMessage: <br>JSON の値がマッピングされた case class .small[([参照](#json_mapping))]
 * メッセージが POST されたらターミナルに表示
+
+???
+
+★Hands-On★
 
 ---
 
@@ -575,6 +612,10 @@ class: middle, center
 ### Hands-On STEP 2
 ## メッセージを配信してみよう
 
+???
+
+【0:25: STEP1: API定義】
+
 ---
 
 ## メッセージを配信してみよう
@@ -584,7 +625,7 @@ class: middle, center
 1. メッセージがクライアントから POST される
 2. メッセージを他のクライアントに配信する
 
-.with-arrow[PubSub を使うと簡単に実装できる]
+.with-arrow[**PubSub** を使うと簡単に実装できる]
 
 ---
 
@@ -599,6 +640,10 @@ class: middle, center
 val topic = pubSub.refFor(TopicId[Message])
 ```
 ]
+
+???
+
+★Hands-On★
 
 ---
 
@@ -619,6 +664,10 @@ override def sendMessage(id: String) = ServiceCall { requestMessage =>
 }
 ```
 ]
+
+???
+
+★Hands-On★
 
 ---
 
@@ -645,13 +694,18 @@ def subscriber: Source[T, NotUsed] // T: ここでは Message
 参照: [メッセージストリームの API 定義](#def_message_stream)
 ]
 
+???
+
+★Hands-On★
+
 ---
 
 ## PubSub の制約
 
 * 到達保証はされない .whisper.sup[※1]
 * 同一サービス内でのみ使える
-* 上記が必要な場合は [Message Broker API](https://www.lagomframework.com/documentation/1.3.x/scala/MessageBroker.html) を使う
+
+上記が必要な場合は [Message Broker API](https://www.lagomframework.com/documentation/1.3.x/scala/MessageBroker.html) を使う
 
 .footnote[
 ※1 将来のリリースで解消される予定:
@@ -686,6 +740,10 @@ class: middle, center
 
 ### Hands-On STEP 3
 ## メッセージを永続化する
+
+???
+
+0:40: STEP2: メッセージ配信
 
 ---
 
@@ -728,7 +786,7 @@ class: middle, center
 
 * デメリット
   * データの集計にコストがかかる
-  .with-arrow[CQRSで解決できる]
+  .with-arrow[**CQRS** で解決できる]
 
 ---
 
@@ -772,6 +830,7 @@ class: middle, center
 
 * `onCommand`: コマンドからイベントを作成して永続化
 * `onEvent`: イベントに基いて Entity の状態を更新
+.with-arrow[ここでは簡単にメッセージ数をカウント]
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.RoomEntity`
@@ -807,7 +866,8 @@ override def behavior = {
         case (msg, ctx, state) =>
           // MessagePosted を永続化する
 *         val msgId = UUID.randomUUID()
-*         ctx.thenPersist(MessagePosted(msgId, state.roomId, msg.message, msg.user, msg.timestamp))(_ => ctx.reply(Done))
+*         val event = MessagePosted(msgId, state.roomId, msg.message, msg.user, msg.timestamp)
+*         ctx.thenPersist(event)(_ => ctx.reply(Done))
       }
       .onEvent {
         case (_: MessagePosted, state) =>
@@ -817,6 +877,10 @@ override def behavior = {
 }
 ```
 ]
+
+???
+
+★Hands-On★
 
 ---
 
@@ -865,6 +929,10 @@ override def buildHandler(): ReadSideHandler[RoomEvent] = {
 ```
 ]
 
+???
+
+★Hands-On★
+
 ---
 
 ## メッセージ一覧を読み取る
@@ -875,25 +943,30 @@ EventProcessor で書き込んだデータを SELECT するだけ
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
-  cassandra
-    .select(
-      """
-        | SELECT message, user, timestamp
-        | FROM message
-        | WHERE roomId = ?
-        | ORDER BY timestamp ASC
-      """.stripMargin, RoomEntity.RoomId)
-    .map { row =>
-      Message(
-        body = row.getString("message"),
-        user = row.getString("user"),
-        timestamp = new DateTime(row.getTimestamp("timestamp"))
-      )
-    }
-    .runFold(Seq.empty[Message])((acc, e) => acc :+ e)
+  // TODO: メッセージの一覧を返す
+* cassandra
+*   .select(
+*     """
+*       | SELECT message, user, timestamp
+*       | FROM message
+*       | WHERE roomId = ?
+*       | ORDER BY timestamp ASC
+*     """.stripMargin, RoomEntity.RoomId)
+*   .map { row =>
+*     Message(
+*       body = row.getString("message"),
+*       user = row.getString("user"),
+*       timestamp = new DateTime(row.getTimestamp("timestamp"))
+*     )
+*   }
+*   .runFold(Seq.empty[Message])((acc, e) => acc :+ e)
 }
 ```
 ]
+
+???
+
+★Hands-On★
 
 ---
 
@@ -907,7 +980,7 @@ override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
 
 override def sendMessage(userId: String) = ServiceCall { requestMessage =>
   val message = Message(requestMessage.body, userId, DateTime.now())
-* // TODO: メッセージを Entity に送る
+  // TODO: メッセージを Entity に送る
 * entity.ask(PostMessage(message.body, message.user, message.timestamp)).map { _ =>
 *   // メッセージを PubSub に publish する
 *   topic.publish(message)
@@ -920,6 +993,10 @@ override def sendMessage(userId: String) = ServiceCall { requestMessage =>
 * `refFor` で Entity への参照を取得 .small[(Entity の ID は固定値)]
 * `ask` を使って `PostMessage` を送信
 * Entity から応答があったら、メッセージを `publish`
+
+???
+
+★Hands-On★
 
 ---
 
@@ -948,6 +1025,10 @@ class: middle, center
 
 ### Hands-On STEP 4
 ## Circuit Breaker を作動させる
+
+???
+
+【1:10: STEP3: 永続化】
 
 ---
 
@@ -1031,25 +1112,27 @@ Web Gateway で Circuit Breaker が作動した
 ## まとめ
 
 Lagom には大規模なマイクロサービスアーキテクチャに
-必要な機能が揃っている
+必要な機能を備えている
 
-* 非同期処理
+* 非同期/ノンブロッキング API
 * PubSub
 * ES + CQRS
 * Circuit Breaker
 
+???
+
+【1:20: STEP4: CB】
+
 ---
 
-## 今回紹介しなかった機能
+## ハンズオンで体験しなかった機能
 
 * クラスタリングで負荷分散
 * サービスを跨いだ PubSub
 
-Lagom の特徴についてもう少し詳しい解説 ↓
-
-[Lagom で学ぶ Reactive Microservices Architecture](https://www.slideshare.net/negokaz/lagom-reactive-microservices-architecture)
-
 ---
-class: middle, center
+class: center
 
 ## Question?
+
+<iframe src="https://wall2.sli.do/event/psvkzxqk"  width="800" height="500" frameborder=0></iframe>

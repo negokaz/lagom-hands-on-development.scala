@@ -19,7 +19,7 @@
     background: rgba(255, 255, 255, 0.50);
     border: 0.05rem solid rgba(255, 255, 255, 0.80);
     padding: 0 0.5rem 0 0.1rem;
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     color: rgba(0, 0, 0, 0.50);
   }
   .remote-controller input[type="checkbox"] {
@@ -35,11 +35,39 @@
     }
   }
 </style>
+<style>
+  #history_back {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    font-size: 0.6rem;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.50);
+    border: 0.05rem solid rgba(255, 255, 255, 0.80);
+    padding: 0 0.5rem 0 0.1rem;
+  }
+  @media print {
+    #history_back {
+      display: none;
+    }
+  }
+</style>
+<style>
+  .copyable {
+    cursor: pointer;
+  }
+  .copyable:hover {
+    background-color: slategray;
+  }
+</style>
 <label for="enable-sync" class="subscribe-control remote-controller">
   <input type="checkbox" id="enable-sync" class="subscribe-control" checked />
-  <span>講演者と同期</span>
+  <span>講演者と同じページを見る</span>
 </label>
+<a id="history_back" href="#">↩ 元のページ</a>
+<input type="hidden" id="clipboard">
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.1/clipboard.js"></script>
 <script src="r/remark-0.14.0.min.js"></script>
 <script src="r/reconnecting-websocket.min.js"></script>
 <script src="r/remark-remote.js"></script>
@@ -54,6 +82,24 @@
       scroll: false
     }
   });
+
+  // ダッシュボード上で開かれているか？
+  var isInDashboard = (window.location.search && window.location.search.indexOf("in-dashboard=true") > -1);
+
+  // ←・→ 以外を無効化
+  if (isInDashboard) {
+    slideshow.pause();
+    $(window).keydown(function(e) {
+      switch (e.keyCode) {
+        case 37: // Left
+          slideshow.gotoPreviousSlide();
+          break;
+        case 39: // Right
+          slideshow.gotoNextSlide();
+          break;
+      }
+    });
+  }
 
 $(function() {
 
@@ -111,6 +157,35 @@ $(function() {
     
   // 全てのリンクが別のタブで開くようにする (アンカーリンクは省く)
   $('a:not(a[href^=\\#])').attr({target: "_blank"});
+
+  // ページ内参照は戻れるようにする
+  $('a[href^=\\#]:not(#history_back)').addClass("history_backable");
+  var $historyBackTrigger = $("#history_back");
+  $historyBackTrigger.hide();
+  var backableSize = 0;
+  $(".history_backable").on('click', function() {
+    backableSize += 1;
+    $historyBackTrigger.show();
+  });
+  $historyBackTrigger.on('click', function(e) {
+    e.preventDefault();
+    history.back();
+    backableSize -= 1;
+    if (backableSize <= 0) {
+      $historyBackTrigger.hide();
+    }
+  });
+
+  openInMac = (navigator.platform && navigator.platform == 'MacPPC');
+
+  $('.with-code-annotation > p > code').addClass('copyable');
+  $('.copyable').each(function() {
+    var text = $(this).text();
+    $(this)
+      .attr('title', 'ショートカットキー: ' + (openInMac ? '⌘ + N' : 'Ctrl + N'))
+      .attr('data-clipboard-text', text);
+  });
+  new Clipboard('.copyable');
 });
 </script>
 
