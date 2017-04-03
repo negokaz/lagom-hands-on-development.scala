@@ -86,6 +86,8 @@
     }
   });
 
+$(function() {
+
   // ←・→ 以外を無効化
   if (isInDashboard) {
     slideshow.pause();
@@ -100,8 +102,6 @@
       }
     });
   }
-
-$(function() {
 
   var remote = remark.remote(slideshow, "wss://stark-dusk-4378.herokuapp.com/");
   if (window.location.search && window.location.search == "?control=true") {
