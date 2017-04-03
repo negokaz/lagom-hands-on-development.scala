@@ -41,6 +41,11 @@ git checkout step1
 .with-twitter-icon[[@negokaz](https://twitter.com/negokaz)]
 .with-github-icon[[negokaz](https://github.com/negokaz)]
 
+???
+
+私たちは Reactive System の推進をミッションとしていて、Lightbend Reactive Platform つまり
+Scala や Akka、Play といった技術の検証やコンサルを おこなっています。
+
 ---
 class: middle, center
 
@@ -57,6 +62,18 @@ class: middle, center
 
 .whisper[※ 以降は MSA と略記]
 
+???
+
+さて、今回のテーマはマイクロサービスアーキテクチャです。
+
+マイクロサービスアーキテクチャってなんなの？というところからご紹介したいと思います。
+
+マイクロサービスアーキテクチャは ThoughtWorks社の Martin Fowler によって提唱された言葉です。
+ざっくり言うと、「小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと」です。
+1つのシステムを小さいサービスに分割して、それぞれを疎結合にすることによって、様々な利点を得ることができます。
+
+マイクロサービスアーキテクチャと言うのは長いので、以降は MSA と略します。
+
 ---
 
 ## MSA のトッピックス
@@ -69,6 +86,10 @@ class: middle, center
 * セキュリティ
 * ...etc
 
+???
+
+MSAのトピックスといえばいろいろありますが、今日は
+
 ---
 
 ## 今日やること・やらないこと
@@ -80,6 +101,10 @@ class: middle, center
 * ~~システム運用~~
 * ~~セキュリティ~~
 * ~~...etc~~
+
+???
+
+今日はアプリ層の話だけをします
 
 ---
 
@@ -98,6 +123,10 @@ class: middle, center
 [Reactive Microservices Architecture (O’Reilly)](http://www.oreilly.com/programming/free/reactive-microservices-architecture.html)
 ]
 
+???
+
+* Scala API が出たのは 2/23
+
 ---
 
 ## Lagom が目指すもの
@@ -109,6 +138,20 @@ class: middle, center
 .footnote[
 [リアクティブ・アーキテクチャ ～大規模サービスにおける必要性と課題〜](http://www.slideshare.net/okapies/reactive-architecture-20160218-58403521)
 ]
+
+
+???
+
+Lagom は MSA を採用しつつ、リアクティブ・システムであることを目指しています。
+
+
+リアクティブ・システムとは、いつでも、たとえ障害があったとしてもユーザーに一貫した速度でレスポンスを返す「即応性」があるシステムのことです。
+
+
+それを実現するためには、負荷が高くなってもスケールして処理できるようにする「弾力性」
+
+
+障害が起きたとしても、問題のある部分をすぐに切り離して応答性を維持する「レジリエンス」という性質が必要であると言われています。
 
 ---
 
@@ -124,6 +167,10 @@ class: middle, center
 
 [Lagom #Polyglot systems with Lagom](http://www.lagomframework.com/documentation/1.3.x/scala/PolyglotSystems.html)
 ]
+
+???
+
+このような性質を達成するための特徴的な設計ポリシーがあります。
 
 ---
 
@@ -145,19 +192,19 @@ class: middle, center
 
 ## Lagom が提供する機能
 
+* クラスタリングで分散処理
+  * **Cluster Sharding**
 * スケーラブルな永続化
   * **Event Sourcing**
   * **CQRS**
 * 疎結合なコンポーネント間通信
   * **Pub-Sub**
-* クラスタリングで分散処理
-  * **Cluster Sharding**
 
 .with-arrow[要件に応じて取捨選択が可能]
 
 ???
 
-今日は Lagom の基本的なところに加えて、上２つを取り上げます
+Lagom はこのような機能を提供していて、要件に応じて取捨選択できるようになっています
 
 ---
 
@@ -171,6 +218,10 @@ class: middle, center
 * 疎結合なコンポーネント間通信
   * **Pub-Sub**
 
+???
+
+ハンズオンで扱うのは下の２つの機能です
+
 ---
 class: middle, center
 
@@ -179,7 +230,7 @@ class: middle, center
 
 ???
 
-Lagom の概要を知れたところで
+Lagom の概要を知れたところで、今日作るものを説明します
 
 ---
 
@@ -190,6 +241,26 @@ Slack のようなチャットアプリケーション
 .center[
 .with-border-frame.height-14[![](r/img/lagom-chat.png)]
 ]
+
+???
+
+今日は Slack のようなチャットの Web アプリを Lagom で実装します
+
+---
+
+## アーキテクチャ
+
+* Frontend は SPA
+* Backend とは REST で JSON 形式のデータをやりとり
+* Backend の各サービスを Lagom で実装
+
+.center[
+.width-25[![](r/img/frontend-backend.svg)]
+]
+
+???
+
+Backend を構成するサービスは…
 
 ---
 
@@ -202,6 +273,10 @@ Slack のようなチャットアプリケーション
 * Message Service
 .with-arrow[メッセージの投稿・配信]
 
+???
+
+3 つあります
+
 ---
 
 ## Lagom Chat のサービス構成
@@ -211,11 +286,21 @@ Slack のようなチャットアプリケーション
 .height-14[![](r/img/lagom-chat-services.svg)]
 ]
 
+???
+
+各サービスの関係性はこのようになっていて、
+
 --
 
 .as-underlay[
 .height-14[![](r/img/lagom-chat-services.write.svg)]
 ]
+
+???
+
+更新系の API は
+* MessageService に対してメッセージを投稿
+* UserService に対してユーザーの追加
 
 --
 
@@ -223,18 +308,9 @@ Slack のようなチャットアプリケーション
 .height-14[![](r/img/lagom-chat-services.read.svg)]
 ]
 
----
+???
 
-## プロジェクトの構成
-
-* Message Service
-  * `message-api` .whisper[(*-api: インターフェイス)]
-  * `message-impl` .whisper[(*-impl: 具体的な実装)]
-* User Service
-  * `user-api`
-  * `user-impl`
-* Web Gateway
-  * `web-gateway`
+読取系の API は…
 
 ---
 
@@ -301,6 +377,23 @@ http://localhost:9000
   .with-arrow[`message-api > MessageService.scala`]
 2. 定義したトレイトをミックスインして具象クラスを実装
   .with-arrow[`message-impl > MessageServiceImpl.scala`]
+
+---
+
+## プロジェクトの構成
+
+* Message Service
+  * `message-api` .whisper[(*-api: インターフェイス)]
+  * `message-impl` .whisper[(*-impl: 具体的な実装)]
+* User Service
+  * `user-api`
+  * `user-impl`
+* Web Gateway
+  * `web-gateway`
+
+???
+
+各サービスはソースでは、このように対応しています
 
 ---
 
