@@ -28,14 +28,6 @@ Total: 1:25
 git fetch origin
 git checkout step1
 ```
-
-
----
-class: middle, center
-
-# Scala ではじめる<br>マイクロサービス
-## Lagom でチャットを実装してみよう！
-
 ---
 
 ## 私は何者？
@@ -50,12 +42,18 @@ class: middle, center
 .with-github-icon[[negokaz](https://github.com/negokaz)]
 
 ---
+class: middle, center
+
+# Scala ではじめる<br>マイクロサービス
+## Lagom でチャットを実装してみよう！
+
+---
 
 ## マイクロサービスアーキテクチャ？
 
 * 2014年3月に ThoughtWorks社 の Martin Fowler によって提唱された
-* 小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと
-* システムを復数に分割することによって デリバリスピードや可用性の面においてメリットがある
+* 復数の小さいサービスを組み合わせて 一つのアプリケーションを構築するスタイルのこと
+* デリバリスピードや可用性の面においてメリットがある
 
 .whisper[※ 以降は MSA と略記]
 
@@ -160,6 +158,18 @@ class: middle, center
 ???
 
 今日は Lagom の基本的なところに加えて、上２つを取り上げます
+
+---
+
+## ハンズオンで扱う機能
+
+* ~~クラスタリングで分散処理~~
+  * ~~Cluster Sharding~~
+* スケーラブルな永続化
+  * **Event Sourcing**
+  * **CQRS**
+* 疎結合なコンポーネント間通信
+  * **Pub-Sub**
 
 ---
 class: middle, center
