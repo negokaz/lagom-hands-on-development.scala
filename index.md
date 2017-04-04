@@ -725,8 +725,9 @@ git checkout step2
 Web Gateway には既に Message Service を呼び出す
 機能が実装されている
 
-http://localhost:9000/chat
+http://localhost:9000/
 
+* .with-checkbox-on[ログインできる]
 * .with-checkbox-on[*ターミナルに*投稿したメッセージが表示される]
 
 .with-code-annotation[
@@ -797,6 +798,8 @@ val topic = pubSub.refFor(TopicId[Message])
 ???
 
 ★Hands-On★
+
+Topic は Slack のチャネルみたいなもの
 
 ---
 
