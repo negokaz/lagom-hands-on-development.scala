@@ -176,7 +176,7 @@ $(function() {
     }
   });
 
-  openInMac = (navigator.platform && navigator.platform == 'MacPPC');
+  var openInMac = (navigator.platform && navigator.platform == 'MacPPC');
 
   $('.with-code-annotation > p > code').addClass('copyable');
   $('.copyable').each(function() {

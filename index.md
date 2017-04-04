@@ -220,7 +220,7 @@ Lagom はこのような機能を提供していて、要件に応じて取捨�
 
 ???
 
-ハンズオンで扱うのは下の２つの機能です
+ハンズオンで扱うのはこの3つの機能です
 
 ---
 class: middle, center
@@ -259,6 +259,8 @@ Slack のようなチャットアプリケーション
 ]
 
 ???
+
+アーキテクチャはこんな感じです
 
 Backend を構成するサービスは…
 
@@ -323,6 +325,10 @@ Backend を構成するサービスは…
   
 .with-arrow[メッセージの投稿と閲覧ができない状態]
 
+???
+
+既に一部はこちらで実装しておきました。でも、まだ一部未実装です。
+
 ---
 
 ## Message Service の API
@@ -335,6 +341,10 @@ Backend を構成するサービスは…
 .with-arrow[`GET` `/api/messagestream` .whisper[(WebSocket)]]
 * チャットルームに入る前のメッセージを確認できる
 .with-arrow[`GET` `/api/messages`]
+
+???
+
+
 
 ---
 class: middle, center
@@ -377,6 +387,10 @@ http://localhost:9000
   .with-arrow[`message-api > MessageService.scala`]
 2. 定義したトレイトをミックスインして具象クラスを実装
   .with-arrow[`message-impl > MessageServiceImpl.scala`]
+
+???
+
+API の実装はこのような手順で行います
 
 ---
 
