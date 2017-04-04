@@ -584,6 +584,8 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 ★Hands-On★
 
+実装してもらった部分を少し詳しく見ていきます
+
 ---
 
 ## メッセージのストリーム .small[(WebSocket)]
@@ -598,6 +600,10 @@ Frames:
 { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
 ```
 ]
+
+???
+
+誰かがメッセージを投稿すると、Web Socket を通じてメッセージが配信されます
 
 ---
 name: def_message_stream
@@ -618,6 +624,10 @@ WebSocket の API を定義できる
 * 第一型引数が入力データの型
 * 第二型引数はストリーム終了時に得られる型
   * 使わないので `NotUsed`
+
+???
+
+ストリーム: 終わりがいつ来るのかわからないデータ
 
 ---
 
@@ -642,6 +652,10 @@ HTTP/1.1 200 OK
 def messages(): ServiceCall[NotUsed, Seq[Message]]
 ```
 ]
+
+???
+
+リクエストが来たら単純に Seq を返す
 
 ---
 
