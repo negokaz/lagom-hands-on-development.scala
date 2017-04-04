@@ -422,6 +422,10 @@ API の実装はこのような手順で行います
 * .with-checkbox-off[チャットルームに入る前のメッセージを確認できる]
   * `GET` `/api/messages`
 
+???
+
+このような API を MessageService のトレイトに実装していきます
+
 ---
 
 ## メッセージの投稿
@@ -440,6 +444,12 @@ Response:
 HTTP/1.1 200 OK
 Content-Length: 0
 ```
+
+???
+
+メッセージの投稿の API はこのような Request を投げると、このような Response が返ってくるという仕様にします。
+
+`userId`
 
 ---
 name: first_descriptor
@@ -468,7 +478,9 @@ override def descriptor = {
 ]
 
 .footnote[
-IntelliJ の `Navigate > Class... (Ctrl + N)` でクラスの名前を指定してジャンプできます
+クラス名をクリックするとコピーされます
+
+IntelliJ の `Navigate > Class...` でクラス名を指定してジャンプできます
 ]
 
 ???
@@ -481,7 +493,6 @@ IntelliJ の `Navigate > Class... (Ctrl + N)` でクラスの名前を指定し�
 
 サービスの API コールを抽象化したクラス
 
-シグネチャ:
 ```scala
 trait ServiceCall[Request, Response]
 ```
@@ -502,7 +513,7 @@ JSON の Request Body が case class にマッピングされる
 
 .with-array-to-bottom[
 .with-code-annotation[
-`JSON`
+`Request Body (JSON)`
 ```javascript
 {
    body: "メッセージ"
@@ -524,7 +535,6 @@ case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
 
 API のパスをメソッドにマッピングする
 
-シグネチャ:
 ```scala
 def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
 ```
@@ -1182,6 +1192,7 @@ Lagom では全ての API コールで Circuit Breaker が有効
 
 * `GET` http://localhost:9000/users
 
+Response:
 .with-code-annotation[
 `JSON`
 ```javascript

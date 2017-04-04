@@ -76,6 +76,107 @@
   // ダッシュボード上で開かれているか？
   var isInDashboard = (window.location.search && window.location.search.indexOf("in-dashboard=true") > -1);
 
+  var onCreatedSlideshow = function(slideshow) {
+    // ←・→ 以外を無効化
+    if (isInDashboard) {
+      slideshow.pause();
+      $(window).keydown(function(e) {
+        switch (e.keyCode) {
+          case 37: // Left
+            slideshow.gotoPreviousSlide();
+            break;
+          case 39: // Right
+            slideshow.gotoNextSlide();
+            break;
+        }
+      });
+    }
+
+    var remote = remark.remote(slideshow, "wss://stark-dusk-4378.herokuapp.com/");
+    if (window.location.search && window.location.search == "?control=true") {
+      // Controllers
+      $(".remote-controller").hide();
+      var passcode = window.prompt("passcode?", "");
+      if (passcode !== null) {
+        remote.control(passcode);
+      }
+    } else {
+      var syncConfig = {
+        _key: "sync_slide",
+        _opts: { expires: 7, path: '' },
+        isSyncOr: function(defaultfn) {
+          var isSync = Cookies.get(this._key);
+          if (isSync != undefined) {
+            return isSync == 'true';
+          } else {
+            var defaultVal = defaultfn();
+            Cookies.set(this._key, defaultVal, this._opts);
+            return defaultVal;
+          }
+        },
+        sync: function() {
+          Cookies.set(this._key, true, this._opts);
+        },
+        unsync: function() {
+          Cookies.set(this._key, false, this._opts);
+        }
+      };
+      // Follower
+      var $enableSync = $("#enable-sync");
+      $enableSync.isSyncEnabled = function() {
+        return $enableSync.prop("checked");
+      };
+      $enableSync.prop("checked", syncConfig.isSyncOr($enableSync.isSyncEnabled)).change();
+      var following = remote.follow();
+      following.followWhen = $enableSync.isSyncEnabled;
+      following.ondefiance = function() {
+        if ($enableSync.isSyncEnabled()) {
+          $enableSync.prop("checked", false).change();
+        }
+      };
+      $enableSync.change(function() {
+        if ($enableSync.isSyncEnabled()) {
+          syncConfig.sync();
+          following.sync();
+        } else {
+          syncConfig.unsync();
+        }
+      });
+    }
+      
+    // 全てのリンクが別のタブで開くようにする (アンカーリンクは省く)
+    $('a:not(a[href^=\\#])').attr({target: "_blank"});
+
+    // ページ内参照は戻れるようにする
+    $('a[href^=\\#]:not(#history_back)').addClass("history_backable");
+    var $historyBackTrigger = $("#history_back");
+    $historyBackTrigger.hide();
+    var backableSize = 0;
+    $(".history_backable").on('click', function() {
+      backableSize += 1;
+      $historyBackTrigger.show();
+    });
+    $historyBackTrigger.on('click', function(e) {
+      e.preventDefault();
+      history.back();
+      backableSize -= 1;
+      if (backableSize <= 0) {
+        $historyBackTrigger.hide();
+      }
+    });
+
+    var openInMac = (navigator.platform && navigator.platform == 'MacPPC');
+
+    $('.with-code-annotation > p > code').addClass('copyable');
+    $('.copyable').each(function() {
+      var text = $(this).text();
+      $(this)
+        .attr('title', 'ショートカットキー: ' + (openInMac ? '⌘ + N' : 'Ctrl + N'))
+        .attr('data-clipboard-text', text);
+    });
+    new Clipboard('.copyable');
+  };
+
   var slideshow = remark.create({
     sourceUrl: 'index.md',
     highlightStyle: 'monokai',
@@ -84,109 +185,7 @@
     navigation: {
       scroll: !isInDashboard
     }
-  });
-
-$(function() {
-
-  // ←・→ 以外を無効化
-  if (isInDashboard) {
-    slideshow.pause();
-    $(window).keydown(function(e) {
-      switch (e.keyCode) {
-        case 37: // Left
-          slideshow.gotoPreviousSlide();
-          break;
-        case 39: // Right
-          slideshow.gotoNextSlide();
-          break;
-      }
-    });
-  }
-
-  var remote = remark.remote(slideshow, "wss://stark-dusk-4378.herokuapp.com/");
-  if (window.location.search && window.location.search == "?control=true") {
-    // Controllers
-    $(".remote-controller").hide();
-    var passcode = window.prompt("passcode?", "");
-    if (passcode !== null) {
-      remote.control(passcode);
-    }
-  } else {
-    var syncConfig = {
-      _key: "sync_slide",
-      _opts: { expires: 7, path: '' },
-      isSyncOr: function(defaultfn) {
-        var isSync = Cookies.get(this._key);
-        if (isSync != undefined) {
-          return isSync == 'true';
-        } else {
-          var defaultVal = defaultfn();
-          Cookies.set(this._key, defaultVal, this._opts);
-          return defaultVal;
-        }
-      },
-      sync: function() {
-        Cookies.set(this._key, true, this._opts);
-      },
-      unsync: function() {
-        Cookies.set(this._key, false, this._opts);
-      }
-    };
-    // Follower
-    var $enableSync = $("#enable-sync");
-    $enableSync.isSyncEnabled = function() {
-      return $enableSync.prop("checked");
-    };
-    $enableSync.prop("checked", syncConfig.isSyncOr($enableSync.isSyncEnabled)).change();
-    var following = remote.follow();
-    following.followWhen = $enableSync.isSyncEnabled;
-    following.ondefiance = function() {
-      if ($enableSync.isSyncEnabled()) {
-        $enableSync.prop("checked", false).change();
-      }
-    };
-    $enableSync.change(function() {
-      if ($enableSync.isSyncEnabled()) {
-        syncConfig.sync();
-        following.sync();
-      } else {
-        syncConfig.unsync();
-      }
-    });
-  }
-    
-  // 全てのリンクが別のタブで開くようにする (アンカーリンクは省く)
-  $('a:not(a[href^=\\#])').attr({target: "_blank"});
-
-  // ページ内参照は戻れるようにする
-  $('a[href^=\\#]:not(#history_back)').addClass("history_backable");
-  var $historyBackTrigger = $("#history_back");
-  $historyBackTrigger.hide();
-  var backableSize = 0;
-  $(".history_backable").on('click', function() {
-    backableSize += 1;
-    $historyBackTrigger.show();
-  });
-  $historyBackTrigger.on('click', function(e) {
-    e.preventDefault();
-    history.back();
-    backableSize -= 1;
-    if (backableSize <= 0) {
-      $historyBackTrigger.hide();
-    }
-  });
-
-  var openInMac = (navigator.platform && navigator.platform == 'MacPPC');
-
-  $('.with-code-annotation > p > code').addClass('copyable');
-  $('.copyable').each(function() {
-    var text = $(this).text();
-    $(this)
-      .attr('title', 'ショートカットキー: ' + (openInMac ? '⌘ + N' : 'Ctrl + N'))
-      .attr('data-clipboard-text', text);
-  });
-  new Clipboard('.copyable');
-});
+  }, onCreatedSlideshow);
 </script>
 
 </body>
