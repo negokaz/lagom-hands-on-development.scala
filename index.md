@@ -30,6 +30,17 @@ git checkout step1
 ```
 ---
 
+## この勉強会のターゲット
+
+* Lagom を使って Web アプリを開発できるようになりたい方
+* Scala の基本的な文法を理解している方
+
+.footnote[
+  リハ専用ページ
+]
+
+---
+
 ## 私は何者？
 
 * 根来 和輝 .whisper[Negoro Kazuki]
