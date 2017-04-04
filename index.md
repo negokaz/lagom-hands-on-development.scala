@@ -27,6 +27,7 @@ Total: 1:25
 ```bash
 git fetch origin
 git checkout step1
+sbt runAll
 ```
 ---
 
