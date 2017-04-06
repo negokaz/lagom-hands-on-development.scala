@@ -4,6 +4,10 @@ version in ThisBuild := "1.0-SNAPSHOT"
 // the Scala version that will be used for cross-compiled libraries
 scalaVersion in ThisBuild := "2.11.8"
 
+// キャッシュ用
+val playGulp = "com.github.mmizutani" %% "play-gulp" % "0.1.5" exclude("com.typesafe.play", "play")
+val playJsonDerivedCodecs = "org.julienrf" %% "play-json-derived-codecs" % "3.3"
+
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 
@@ -24,6 +28,8 @@ lazy val `lagom-hands-on-development-impl` = (project in file("lagom-hands-on-de
       lagomScaladslPersistenceCassandra,
       lagomScaladslTestKit,
       macwire,
+      playJsonDerivedCodecs,
+      playGulp,
       scalaTest
     )
   )
