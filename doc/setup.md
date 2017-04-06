@@ -35,9 +35,13 @@ $ git clone https://github.com/negokaz/lagom-hands-on-development.scala.git
 
 ## IntelliJ IDEA のインストールとプロジェクトのインポート
 
-下記を参考に、IntelliJ IDEA のインストールと、クローンしたプロジェクトのインポートを行って下さい。
+下記を参考に、IntelliJ IDEA・Scala プラグインのインストールと、クローンしたプロジェクトのインポートを行って下さい。
 
 [IDE(Intellij IDEA) · Scala研修テキスト](http://dwango.github.io/scala_text/IDE.html)
+
+インポートしたプロジェクトが下記のような状態になれば OK です。
+
+![](img/project-tree.png)
 
 ## プロジェクトの起動確認
 
