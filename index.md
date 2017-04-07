@@ -418,7 +418,9 @@ API の実装はこのような手順で行います
 
 ???
 
-各サービスはソースでは、このように対応しています
+各サービスはソースでは、このように対応しています。
+
+各サービスは他のサービスの API にのみ依存します
 
 ---
 
@@ -482,7 +484,7 @@ override def descriptor = {
   import Service._
   named("message").withCalls(
     // TODO: パスとメソッドのマッピングを定義
-    pathCall("/api/messages/:userId", sendMessage _)
+*   pathCall("/api/messages/:userId", sendMessage _)
   ).withAutoAcl(true)
 }
 ```
@@ -492,6 +494,8 @@ override def descriptor = {
 クラス名をクリックするとコピーされます
 
 IntelliJ の `Navigate > Class...` でクラス名を指定してジャンプできます
+
+(Win: Ctrl + N, Mac: ⌘ + N) 
 ]
 
 ???
@@ -582,10 +586,25 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 * .with-checkbox-on[チャットルームにメッセージを投稿できる]
   * `POST` `/api/messages/:userId`
+.without-margin[
+```scala
+def sendMessage(userId: String)
+```
+]
 * .with-checkbox-off[*投稿されたメッセージをリアルタイムに確認できる*]
   * `GET` `/api/messagestream` .whisper[(WebSocket)]
+.without-margin[
+```scala
+def messageStream()
+```
+]
 * .with-checkbox-off[*チャットルームに入る前のメッセージを確認できる*]
   * `GET` `/api/messages`
+.without-margin[
+```scala
+def messages()
+```
+]
 
 .footnote[
 `withCalls` にカンマ区切りで復数定義できる
@@ -681,9 +700,9 @@ override def descriptor = {
   import Service._
   named("message").withCalls(
     // パスとメソッドのマッピングを定義
-    pathCall("/api/messages/:userId", sendMessage _),
-    pathCall("/api/messagestream", messageStream),
-    pathCall("/api/messages", messages)
+*   pathCall("/api/messages/:userId", sendMessage _),
+*   pathCall("/api/messagestream", messageStream),
+*   pathCall("/api/messages", messages)
   ).withAutoAcl(true)
 }
 ```
@@ -802,7 +821,7 @@ class: middle, center
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
 // TODO: メッセージを配信するための Topic を作成
-val topic = pubSub.refFor(TopicId[Message])
+*val topic = pubSub.refFor(TopicId[Message])
 ```
 ]
 
@@ -898,6 +917,7 @@ git checkout step3
 
 http://localhost:9000/chat
 
+* 既にチャット画面が開いている場合はリロード してください
 * .with-checkbox-on[投稿したメッセージは他のユーザーからも確認できる]
   * シークレットウィンドウから他のユーザーでログイン
 * リロードするとメッセージが消える
@@ -995,38 +1015,47 @@ class: middle, center
 
 `behavior` に Entity の状態ごとの振る舞いを定義する
 
-* `onCommand`: コマンドからイベントを作成して永続化
-* `onEvent`: イベントに基いて Entity の状態を更新
-.with-arrow[ここでは簡単にメッセージ数をカウント]
-
 .with-code-annotation[
 `com.example.lagomchat.message.impl.RoomEntity`
 ```scala
 override def behavior = {
-    // ...(略)... //
+  // ...(略)... //
+
   case RoomState(_, _) =>
     Actions()
       .onCommand[PostMessage, Done] {
         case (msg, ctx, state) =>
-*         ??? // TODO: MessagePosted を永続化する
+          // TODO: MessagePosted を永続化する
+*         ??? 
       }
       .onEvent {
         case (_: MessagePosted, state) =>
-*         ??? // TODO: state の countOfMessage をインクリメントする
+          // TODO: state の countOfMessage をインクリメントする
+*         ???
       }
 }
 ```
+]
+
+--
+
+.float-top-16.glass-deep[
+* `onCommand`: コマンドからイベントを作成して永続化
+* `onEvent`: イベントに基いて Entity の状態を更新
+.with-arrow[ここでは簡単にメッセージ数をカウント]
 ]
 
 ---
 
 ## Entity を実装
 
+コマンドとイベントをきっかけにする処理を実装
 .with-code-annotation[
 `com.example.lagomchat.message.impl.RoomEntity`
 ```scala
 override def behavior = {
   // ...(略)... //
+
   case RoomState(_, _) =>
     Actions()
       .onCommand[PostMessage, Done] {
@@ -1051,9 +1080,9 @@ override def behavior = {
 
 ---
 
-## EventProcessor を実装
+## EventProcessor に定義されたクエリ
 
-イベントに基いてデータを更新するクエリを作る
+イベントに基いてデータを更新するクエリ
 
 .with-arrow[`processMessagePosted` として定義済 ↓]
 
@@ -1078,7 +1107,7 @@ private def processMessagePosted(e: EventStreamElement[MessagePosted]): Future[L
 
 ---
 
-## EventProcessor を実装
+## EventHandler を登録する
 
 `ReadSideHandler` に `EventHandler` として登録
 
@@ -1152,7 +1181,7 @@ override def sendMessage(userId: String) = ServiceCall { requestMessage =>
 *   // メッセージを PubSub に publish する
 *   topic.publish(message)
 *   Done
-  }
+* }
 }
 ```
 ]
