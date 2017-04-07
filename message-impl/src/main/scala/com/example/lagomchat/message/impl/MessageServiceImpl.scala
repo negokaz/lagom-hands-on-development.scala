@@ -21,6 +21,10 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
 
   implicit val dispatcher = system.dispatcher
 
+  // TODO: メッセージを配信するための Topic を作成
+
+  // TODO: Entity の参照を取得
+
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     // TODO: メッセージを PubSub に publish する
     // TODO: メッセージを Entity に送る
@@ -28,10 +32,12 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
   }
 
   override def messageStream() = ServiceCall { _ =>
-    ??? // TODO: PubSub で subscribe したメッセージを流す
+    // TODO: PubSub で subscribe したメッセージを流す
+    ???
   }
 
   override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
-    ??? // TODO: メッセージの一覧を返す
+    // TODO: メッセージの一覧を返す
+    ???
   }
 }

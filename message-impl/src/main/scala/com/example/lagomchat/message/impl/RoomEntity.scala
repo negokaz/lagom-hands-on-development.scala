@@ -39,18 +39,21 @@ class RoomEntity extends PersistentEntity {
       Actions()
         .onCommand[PostMessage, Done] {
           case (_, ctx, _) =>
-            ??? // TODO: もうメッセージが投稿できないのでエラーの応答を返す
+            // TODO: もうメッセージが投稿できないのでエラーの応答を返す
+            ???
         }
 
     case RoomState(_, _) =>
       Actions()
         .onCommand[PostMessage, Done] {
           case (msg: PostMessage, ctx, state) =>
-            ??? // TODO: MessagePosted を永続化する
+            // TODO: MessagePosted を永続化する
+            ???
         }
         .onEvent {
           case (_: MessagePosted, state) =>
-            ??? // TODO: state の countOfMessage をインクリメントする
+            // TODO: state の countOfMessage をインクリメントする
+            ???
         }
   }
 }
