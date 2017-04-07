@@ -696,10 +696,10 @@ override def descriptor = {
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
-override def sendMessage(id: String) = ServiceCall { requestMessage =>
+override def sendMessage(userId: String) = ServiceCall { requestMessage =>
   // TODO: メッセージを PubSub に publish する
   // TODO: メッセージを Entity に送る
-* println(s"$requestMessage from $id")
+* println(s"$requestMessage from $userId")
 * Future.successful(Done)
 }
 
@@ -821,8 +821,8 @@ Topic は Slack のチャネルみたいなもの
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
 ```scala
-override def sendMessage(id: String) = ServiceCall { requestMessage =>
-* val message = Message(requestMessage.body, id, DateTime.now())
+override def sendMessage(userId: String) = ServiceCall { requestMessage =>
+* val message = Message(requestMessage.body, userId, DateTime.now())
   // TODO: メッセージを PubSub に publish する
 * topic.publish(message)
   // TODO: メッセージを Entity に送る
