@@ -47,13 +47,15 @@ class RoomEntity extends PersistentEntity {
       Actions()
         .onCommand[PostMessage, Done] {
           case (msg: PostMessage, ctx, state) =>
-            // TODO: MessagePosted を永続化する
-            ???
+            // MessagePosted を永続化する
+            val msgId = UUID.randomUUID()
+            val event = MessagePosted(msgId, state.roomId, msg.message, msg.user, msg.timestamp)
+            ctx.thenPersist(event)(_ => ctx.reply(Done))
         }
         .onEvent {
           case (_: MessagePosted, state) =>
-            // TODO: state の countOfMessage をインクリメントする
-            ???
+            // state の countOfMessage をインクリメントする
+            state.incrementsMessages
         }
   }
 }

@@ -25,15 +25,17 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
   // メッセージを配信するための Topic を作成
   val topic = pubSub.refFor(TopicId[Message])
 
-  // TODO: Entity の参照を取得
+  // Entity の参照を取得
+  val entity = registry.refFor[RoomEntity](RoomEntity.RoomId)
 
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     val message = Message(requestMessage.body, userId, DateTime.now())
-    // メッセージを PubSub に publish する
-    topic.publish(message)
-    // TODO: メッセージを Entity に送る
-    println(s"$requestMessage from $userId")
-    Future.successful(Done)
+    // メッセージを Entity に送る
+    entity.ask(PostMessage(message.body, message.user, message.timestamp)).map { _ =>
+      // メッセージを PubSub に publish する
+      topic.publish(message)
+      Done
+    }
   }
 
   override def messageStream() = ServiceCall { _ =>
@@ -42,7 +44,22 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
   }
 
   override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
-    // TODO: メッセージの一覧を返す
-    Future.successful(Seq(Message(body = "Welcome to Lagom Chat!!", user = "Bot", DateTime.now())))
+    // メッセージの一覧を返す
+    cassandra
+      .select(
+        """
+          | SELECT message, user, timestamp
+          | FROM message
+          | WHERE roomId = ?
+          | ORDER BY timestamp ASC
+        """.stripMargin, RoomEntity.RoomId)
+      .map { row =>
+        Message(
+          body = row.getString("message"),
+          user = row.getString("user"),
+          timestamp = new DateTime(row.getTimestamp("timestamp"))
+        )
+      }
+      .runFold(Seq.empty[Message])((acc, e) => acc :+ e)
   }
 }

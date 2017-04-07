@@ -19,7 +19,8 @@ class RoomEventProcessor(session: CassandraSession, readSide: CassandraReadSide,
     val builder = readSide.builder[RoomEvent]("roomoffset")
     builder.setGlobalPrepare(createTable)
     builder.setPrepare(_ => prepareWriteUser())
-    // TODO: Entity で起きたイベントを Read モデルに反映する
+    // Entity で起きたイベントを Read モデルに反映する
+    builder.setEventHandler[MessagePosted](processMessagePosted)
     builder.build()
   }
 
