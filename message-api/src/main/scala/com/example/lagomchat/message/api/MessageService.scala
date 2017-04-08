@@ -49,6 +49,10 @@ trait MessageService extends Service {
     */
   def messages(): ServiceCall[NotUsed, Seq[Message]]
 
+  /**
+    * API の descriptor を定義する
+    * パスと ServiceCall を返すメソッドのマッピングをここで定義
+    */
   override final def descriptor = {
     import Service._
     named("message").withCalls(
