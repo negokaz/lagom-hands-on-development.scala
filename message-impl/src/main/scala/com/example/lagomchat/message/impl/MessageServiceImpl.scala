@@ -2,6 +2,7 @@ package com.example.lagomchat.message.impl
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.example.lagomchat.message.api.{Message, MessageService}
@@ -28,16 +29,16 @@ class MessageServiceImpl(pubSub: PubSubRegistry,
   override def sendMessage(userId: String) = ServiceCall { requestMessage =>
     // TODO: メッセージを PubSub に publish する
     // TODO: メッセージを Entity に送る
-    ???
+    Future.successful(Done)
   }
 
   override def messageStream() = ServiceCall { _ =>
     // TODO: PubSub で subscribe したメッセージを流す
-    ???
+    Future.successful(Source.empty)
   }
 
   override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
     // TODO: メッセージの一覧を返す
-    ???
+    Future.successful(Seq(Message(body = "Welcome to Lagom Chat!!", user = "Bot", DateTime.now())))
   }
 }
