@@ -385,7 +385,7 @@ $ sbt runAll
 ```
 ]
 
-起動後、ブラウザで下記にアクセス
+下記にアクセスしてログイン画面が表示されれば OK
 
 http://localhost:9000
 
@@ -393,41 +393,9 @@ http://localhost:9000
 
 ---
 
-## API の実装
-
-1. Serivce の API を定義したトレイトを実装
-  .with-arrow[`message-api > MessageService.scala`]
-2. 定義したトレイトをミックスインして具象クラスを実装
-  .with-arrow[`message-impl > MessageServiceImpl.scala`]
-
-???
-
-API の実装はこのような手順で行います
-
----
-
-## プロジェクトの構成
-
-* Message Service
-  * `message-api` .whisper[(*-api: インターフェイス)]
-  * `message-impl` .whisper[(*-impl: 具体的な実装)]
-* User Service
-  * `user-api`
-  * `user-impl`
-* Web Gateway
-  * `web-gateway`
-
-???
-
-各サービスはソースでは、このように対応しています。
-
-各サービスは他のサービスの API にのみ依存します
-
----
-
 ## Message Service の API
 
-下記の API を `MessageService` トレイトに定義します
+下記の API を Message Service に実装します
 
 * .with-checkbox-off[チャットルームにメッセージを投稿できる]
   * `POST` `/api/messages/:userId`
@@ -442,39 +410,66 @@ API の実装はこのような手順で行います
 
 ---
 
-## メッセージの投稿
+## Message Service の API
 
-`POST` `/api/messages/:userId`
+まずは、一番単純な API を実装します
 
-Request:
-```javascript
-{
-   body: "メッセージ"
-}
-```
+* .with-checkbox-off[チャットルームにメッセージを投稿できる]
+  * `POST` `/api/messages/:userId`
+* .with-checkbox-off[投稿されたメッセージをリアルタイムに確認できる]
+  * `GET` `/api/messagestream` .whisper[(WebSocket)]
+* .with-checkbox-off[**チャットルームに入る前のメッセージを確認できる**]
+  * `GET` `/api/messages`
+
+???
+
+このような API を MessageService のトレイトに実装していきます
+
+---
+## これから見ていくファイル
+
+1. Serivce の API を定義したトレイト
+  * `message-api > MessageService.scala`
+  * インターフェイスを定義する
+2. 上記トレイトをミックスインした具象クラス
+  * `message-impl > MessageServiceImpl.scala`
+  * 具体的な処理を実装する
+
+???
+
+API の実装はこのような手順で行います
+
+このステップでは、インターフェイスの定義を行います
+
+---
+
+## メッセージの一覧を取得
+
+`GET` `/api/messages`
 
 Response:
 ```javascript
 HTTP/1.1 200 OK
-Content-Length: 0
+
+[
+  { body: "わーい！", user: "user1", timestamp: 1488866889258 },
+  { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
+]
 ```
 
 ???
 
-メッセージの投稿の API はこのような Request を投げると、このような Response が返ってくるという仕様にします。
-
-`userId`
+リクエストが来たら単純にJSONでリストを返す
 
 ---
-name: first_descriptor
 
-## Message Service の Descriptor を定義
+## MessageService の descriptor を定義
 
 .with-code-annotation[
 `com.example.lagomchat.message.api.MessageService`
 ```scala
 // ServiceCall を返す抽象メソッド (定義済み)
-def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
+def messages(): ServiceCall[NotUsed, Seq[Message]]
 ```
 ]
 
@@ -485,7 +480,7 @@ override def descriptor = {
   import Service._
   named("message").withCalls(
     // TODO: パスとメソッドのマッピングを定義
-*   pathCall("/api/messages/:userId", sendMessage _)
+*   pathCall("/api/messages", messages)
   ).withAutoAcl(true)
 }
 ```
@@ -502,6 +497,76 @@ IntelliJ の `Navigate > Class...` でクラス名を指定してジャンプで
 ???
 
 ★Hands-On★
+
+---
+
+## MessageServiceImpl を確認
+
+`messages` はダミーのメッセージを返す
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
+  // TODO: メッセージの一覧を返す
+* Future.successful(Seq(Message(body = "Welcome to Lagom Chat!!", user = "Bot", DateTime.now())))
+}
+```
+]
+
+---
+
+## 実装の確認
+
+下記にアクセス
+
+http://localhost:9000/api/messages
+
+MessageServiceImpl で実装されたダミーのメッセージが JSON で返ってくる
+
+```json
+[{body:"Welcome to Lagom Chat!!",user:"Bot",timestamp:1488866889258}]
+```
+
+---
+
+## 実装の解説
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+// ServiceCall を返す抽象メソッド (定義済み)
+*def messages(): ServiceCall[NotUsed, Seq[Message]]
+```
+]
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+override def descriptor = {
+  import Service._
+  named("message").withCalls(
+    // TODO: パスとメソッドのマッピングを定義
+*   pathCall("/api/messages", messages)
+  ).withAutoAcl(true)
+}
+```
+]
+
+---
+
+## pathCall
+
+API のパスをメソッドにマッピングする
+
+```scala
+def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
+```
+
+* 第一引数に API のパス
+* 第二引数に `ServiceCall` を返すメソッド .whisper[(厳密には関数)]
+
+を指定する。
 
 ---
 
@@ -547,21 +612,30 @@ case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
 
 ---
 
-## pathCall
+## Response Body
 
-API のパスをメソッドにマッピングする
+case class の Response Body が JSON にマッピングされる
 
+`ServiceCall[_, Message]` と宣言すると…
+
+.with-array-to-bottom[
+.with-code-annotation[
+`Request Body (JSON)`
 ```scala
-def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceCall[Request, Response])
+Message(body = "Welcome to Lagom Chat!!", user = "Bot", timestamp = DateTime.now())
 ```
-
-* 第一引数に API のパス
-* 第二引数に `ServiceCall` を返すメソッド
-
-を指定する。
-
-.footnote[
-[ここ](#first_descriptor)での第二引数は `sendMessage`
+]
+]
+<div style="height:1rem"></div>
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```json
+{
+   body: "Welcome to Lagom Chat!!",
+   user: "Bot",
+   timestamp: 1488866889258
+}
+```
 ]
 
 ---
@@ -583,27 +657,56 @@ def pathCall[Request, Response](pathPattern: String, method: ScalaMethodServiceC
 
 ---
 
+## 実装の解説
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+// ServiceCall を返す抽象メソッド (定義済み)
+*def messages(): ServiceCall[NotUsed, Seq[Message]]
+```
+]
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+override def descriptor = {
+  import Service._
+  named("message").withCalls(
+    // TODO: パスとメソッドのマッピングを定義
+*   pathCall("/api/messages", messages)
+  ).withAutoAcl(true)
+}
+```
+]
+
+* API のパスは `/api/message`
+* 第一型引数が `NotUsed` なので HTTP メソッドは `GET`
+* Response Body は `Message` のリスト
+
+---
+
 ## 他の API も定義してみよう
 
-* .with-checkbox-on[チャットルームにメッセージを投稿できる]
+* .with-checkbox-off[**チャットルームにメッセージを投稿できる**]
   * `POST` `/api/messages/:userId`
 .without-margin[
 ```scala
-def sendMessage(userId: String)
+def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
 ```
 ]
-* .with-checkbox-off[*投稿されたメッセージをリアルタイムに確認できる*]
+* .with-checkbox-off[**投稿されたメッセージをリアルタイムに確認できる**]
   * `GET` `/api/messagestream` .whisper[(WebSocket)]
 .without-margin[
 ```scala
-def messageStream()
+def messageStream(): ServiceCall[NotUsed, Source[Message, NotUsed]]
 ```
 ]
-* .with-checkbox-off[*チャットルームに入る前のメッセージを確認できる*]
+* .with-checkbox-on[チャットルームに入る前のメッセージを確認できる]
   * `GET` `/api/messages`
 .without-margin[
 ```scala
-def messages()
+def messages(): ServiceCall[NotUsed, Seq[Message]]
 ```
 ]
 
@@ -616,6 +719,54 @@ def messages()
 ★Hands-On★
 
 実装してもらった部分を少し詳しく見ていきます
+
+---
+
+## メッセージの投稿
+
+`POST` `/api/messages/:userId`
+
+Request:
+```javascript
+{
+   body: "メッセージ"
+}
+```
+
+Response:
+```javascript
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+???
+
+メッセージの投稿の API はこのような Request を投げると、このような Response が返ってくるという仕様にします。
+
+`userId`
+
+---
+
+## メッセージの投稿
+
+.with-code-annotation[
+`com.example.lagomchat.message.api.MessageService`
+```scala
+def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
+```
+]
+
+* 引数の `userId` はパスの `:userId` を受け取る
+* `ServiceCall` の
+  * 第一型引数は投稿内容を表す `RequestMessage`
+  * 第二型引数は処理完了を表す `Done`
+
+--
+
+引数をとるため、`_` で関数に変換して `pathCall` に渡す
+```scala
+pathCall("/api/messages/:userId", sendMessage _)
+```
 
 ---
 
@@ -662,35 +813,7 @@ WebSocket の API を定義できる
 
 ---
 
-### メッセージの一覧を取得
-
-`GET` `/api/messages`
-
-Response:
-```javascript
-HTTP/1.1 200 OK
-
-[
-  { body: "わーい！", user: "user1", timestamp: 1488866889258 },
-  { body: "すごーい！", user: "user2", timestamp: 1488866889259 }
-]
-```
--------
-
-.with-code-annotation[
-`com.example.lagomchat.message.api.MessageService`
-```scala
-def messages(): ServiceCall[NotUsed, Seq[Message]]
-```
-]
-
-???
-
-リクエストが来たら単純に Seq を返す
-
----
-
-## Service Descriptor の完成形
+## descriptor の完成形
 
 下記のようになっていれば、完成です
 
@@ -720,11 +843,7 @@ override def sendMessage(userId: String) = ServiceCall { requestMessage =>
   // TODO: メッセージを PubSub に publish する
   // TODO: メッセージを Entity に送る
 * println(s"$requestMessage from $userId")
-* Future.successful(Done)
-}
-
-override def messageStream() = ServiceCall { _ =>
-  ???
+  Future.successful(Done)
 }
 ```
 ]
@@ -759,6 +878,7 @@ Web Gateway には既に Message Service を呼び出す
 http://localhost:9000/
 
 * .with-checkbox-on[ログインできる]
+* .with-checkbox-on[ダミーのメッセージが表示される]
 * .with-checkbox-on[*ターミナルに*投稿したメッセージが表示される]
 
 .with-code-annotation[
@@ -811,6 +931,24 @@ class: middle, center
 2. メッセージを他のクライアントに配信する
 
 .with-arrow[**PubSub** を使うと簡単に実装できる]
+
+---
+
+## PubSub？
+
+Publish-Subscribe パラダイムのメッセージングを
+簡単に実現するためのモジュール
+
+.foreground[
+.height-10[![](r/img/publish-subscribe.1.svg)]
+]
+
+--
+
+
+.foreground[
+.height-10[![](r/img/publish-subscribe.2.svg)]
+]
 
 ---
 
@@ -890,7 +1028,7 @@ def subscriber: Source[T, NotUsed] // T: ここでは Message
 ## PubSub の制約
 
 * 到達保証はされない .whisper.sup[※1]
-* 同一サービス内でのみ使える
+* サービスをまたいだメッセージ配信はできない
 
 上記が必要な場合は [Message Broker API](https://www.lagomframework.com/documentation/1.3.x/scala/MessageBroker.html) を使う
 
@@ -950,7 +1088,24 @@ class: middle, center
 
 ## Event Sourcing
 
-* システムの中で起きた**イベント**を永続化する
+* サービスの Entity で起きた**イベント**を永続化する
+
+---
+
+## Entity？
+
+* DDD の文脈で集約ルートと呼ばれるもの
+* 一意の ID で識別できる
+* 状態をインメモリで持つ
+* コマンドを受け取り、コマンドからイベントを作る
+* イベントを永続化し、自身の状態を更新する
+* 状態が失われたら**イベントを再生**して復元
+
+---
+
+## Event Sourcing
+
+* サービスの Entity で起きた**イベント**を永続化する
 * イベントは不変(immutable)
     * キャッシュ、コピー、共有が容易にできる
         * スケールしやすい
@@ -962,7 +1117,7 @@ class: middle, center
 
 ## Event Sourcing
 
-* システムの中で起きた**イベント**を永続化する
+* サービスの Entity で起きた**イベント**を永続化する
 
 .center[
 .height-13[![](r/img/event-sourcing.4.svg)]
@@ -999,7 +1154,7 @@ class: middle, center
 書き込み側と読み込み側で
 * 異なるDB・データ構造が使える
 * 別々にスケールできるようになる
-.with-arrow[Command-Side にイベントソーシングを使い<br>Query-Side に集計しやすい形で永続化する]
+.with-arrow[Command-Side にイベントソーシングを使い<br>Query-Side に集計しやすい形で”永続化する]
 ]
 
 ---
@@ -1009,6 +1164,12 @@ class: middle, center
 .center[
 ![](r/img/es-and-cqrs.svg)
 ]
+
+???
+
+* Entity: 口座
+* 不正なコマンドを弾く
+  * 例: 残金が 100 円しかないのに、10000円引き出そうとする
 
 ---
 
@@ -1306,16 +1467,22 @@ Web Gateway で Circuit Breaker が作動した
 .with-arrow[http://localhost:9000/users]
 
 ---
+class: middle, center
 
-## まとめ
+# まとめ
 
-Lagom には大規模なマイクロサービスアーキテクチャに
-必要な機能を備えている
+---
 
-* 非同期/ノンブロッキング API
+## ハンズオンで体験した機能
+
+Lagom は大規模な MSA に必要な機能を備えている
+
 * PubSub
+.with-arrow[メッセージの配信を簡単に]
 * ES + CQRS
+.with-arrow[Read/Write 両方のスケーラビリティ]
 * Circuit Breaker
+.with-arrow[障害を切り離してシステム全体を落とさない]
 
 ???
 
@@ -1326,7 +1493,9 @@ Lagom には大規模なマイクロサービスアーキテクチャに
 ## ハンズオンで体験しなかった機能
 
 * クラスタリングで負荷分散
+.with-arrow[Entity を復数のノードに分散配置することで、サービス単体をスケールアウトする]
 * サービスを跨いだ PubSub
+.with-arrow[[コレオグラフィ](http://qiita.com/kawasima/items/17475a993e03f249a077)で設計変更に強いシステムにする]
 
 ---
 class: center
