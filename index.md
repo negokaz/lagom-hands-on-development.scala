@@ -491,7 +491,7 @@ IntelliJ の `Navigate > Class...` でクラス名を指定してジャンプで
 
 ## MessageServiceImpl を確認
 
-`messages` はダミーのメッセージを返す
+`messages()` はダミーのメッセージを返す
 
 .with-code-annotation[
 `com.example.lagomchat.message.impl.MessageServiceImpl`
@@ -511,7 +511,7 @@ override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
 
 http://localhost:9000/api/messages
 
-MessageServiceImpl で実装されたダミーのメッセージが JSON で返ってくる
+.with-checkbox-on[`MessageServiceImpl` で実装された ダミーのメッセージが JSON で返ってくる]
 
 ```json
 [{body:"Welcome to Lagom Chat!!",user:"Bot",timestamp:1488866889258}]
@@ -541,6 +541,7 @@ override def descriptor = {
 }
 ```
 ]
+
 
 ---
 
@@ -603,13 +604,13 @@ case class RequestMessage(body: String) // ⇒ RequestMessage("メッセージ")
 
 ## Response Body
 
-case class の Response Body が JSON にマッピングされる
+case class が JSON の Response Body にマッピングされる
 
 `ServiceCall[_, Message]` と宣言すると…
 
 .with-array-to-bottom[
 .with-code-annotation[
-`Request Body (JSON)`
+`com.example.lagomchat.message.api.MessageService`
 ```scala
 Message(body = "Welcome to Lagom Chat!!", user = "Bot", timestamp = DateTime.now())
 ```
@@ -617,7 +618,7 @@ Message(body = "Welcome to Lagom Chat!!", user = "Bot", timestamp = DateTime.now
 ]
 <div style="height:1rem"></div>
 .with-code-annotation[
-`com.example.lagomchat.message.api.MessageService`
+`Response Body (JSON)`
 ```json
 {
    body: "Welcome to Lagom Chat!!",
@@ -639,7 +640,7 @@ Message(body = "Welcome to Lagom Chat!!", user = "Bot", timestamp = DateTime.now
 |`ServiceCall[_, _]`|`POST`|
 
 .footnote[
-任意のHTTPメソッドを指定できる`restCall`という APIもある
+`restCall` を使うと任意の HTTP メソッドで定義できる
 
 [Lagom - Service descriptors #REST identifiers](https://www.lagomframework.com/documentation/1.3.x/scala/ServiceDescriptors.html#REST-identifiers)
 ]
@@ -672,6 +673,23 @@ override def descriptor = {
 * API のパスは `/api/message`
 * 第一型引数が `NotUsed` なので HTTP メソッドは `GET`
 * Response Body は `Message` のリスト
+
+---
+
+## 実装の解説
+
+* `/api/message` がリクエストされると、<br>
+`descriptor` の定義に基いて `messages()` が呼ばれる
+
+.with-code-annotation[
+`com.example.lagomchat.message.impl.MessageServiceImpl`
+```scala
+override def messages(): ServiceCall[NotUsed, Seq[Message]] = ServiceCall { _ =>
+  // TODO: メッセージの一覧を返す
+* Future.successful(Seq(Message(body = "Welcome to Lagom Chat!!", user = "Bot", DateTime.now())))
+}
+```
+]
 
 ---
 
@@ -747,8 +765,8 @@ def sendMessage(userId: String): ServiceCall[RequestMessage, Done]
 
 * 引数の `userId` はパスの `:userId` を受け取る
 * `ServiceCall` の
-  * 第一型引数は投稿内容を表す `RequestMessage`
-  * 第二型引数は処理完了を表す `Done`
+  * 第一型引数は*投稿内容*を表す `RequestMessage`
+  * 第二型引数は*処理完了*を表す `Done`
 
 --
 
@@ -793,8 +811,7 @@ WebSocket の API を定義できる
 
 * ストリームデータの **入力** を表す
 * 第一型引数が入力データの型
-* 第二型引数はストリーム終了時に得られる型
-  * 使わないので `NotUsed`
+* 第二型引数は `NotUsed`
 
 ???
 
@@ -1445,6 +1462,11 @@ Web Gateway で Circuit Breaker が作動した
 .center[
 .height-14[![](r/img/circuit-break.svg)]
 ]
+
+???
+
+* ユーザーにすぐ代替のレスポンスを返せる
+* 過負荷になっている UserService に追い打ちをかけずにすむ
 
 ---
 
