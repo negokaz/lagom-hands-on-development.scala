@@ -1,7 +1,5 @@
-class: middle, center
-
-# Scala ではじめる<br>マイクロサービス
-## Lagom でチャットを実装してみよう！
+class: middle, center, background-cover, fit
+background-image: url(r/img/lagom-hands-on-logo.png)
 
 ???
 
@@ -48,10 +46,14 @@ sbt runAll
 Scala や Akka、Play といった技術の検証やコンサルを おこなっています。
 
 ---
-class: middle, center
+class: middle, center, fit, background-cover
+background-image:url(r/img/hands-on-logo.png)
 
+.glass[
 # Scala ではじめる<br>マイクロサービス
 ## Lagom でチャットを実装してみよう！
+## @Tech-Circle
+]
 
 ---
 
