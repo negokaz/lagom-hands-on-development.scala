@@ -349,7 +349,7 @@ Backend を構成するサービスは…
 
 ???
 
-このハンズオンでは、このような API を想定して開発します。
+Message Service は、このような API を想定して開発します。
 
 ---
 class: middle, center
@@ -417,6 +417,8 @@ http://localhost:9000
 ???
 
 このような API を MessageService のトレイトに実装していきます
+
+まずは、一番単純な API を実装します
 
 ---
 ## これから見ていくファイル
